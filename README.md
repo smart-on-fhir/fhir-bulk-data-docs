@@ -174,22 +174,35 @@ Using the urls supplied in the completed status request body, clients can downlo
 ## Server Implementations
 
 - SMART (supports v0.1)
+
   https://github.com/smart-on-fhir/bulk-data-server (code)
+  
   https://bulk-data.smarthealthit.org (online)
+  
 - HL7 (supports v0.1)
+  
   https://test.fhir.org/r3
+  
 - Cerner (supports v0.1)
+  
   https://fhir-open.stagingcerner.com/stu3/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$everything
+  
 - ONC (supports v0.1)
+  
   http://52.70.192.201/open-fhir/fhir/ (open)
+  
   http://52.70.192.201/secure-fhir/view/newuser.html (registration)
+  
   http://52.70.192.201/secure-fhir/fhir/ (secure)
 
 ## Client Implementations
 
 - SMART (supports v0.1)
+  
   https://github.com/smart-on-fhir/sample-apps-stu3/tree/master/fhir-downloader
+
 - Josh (supports v0.1)
+
   https://github.com/jmandel/synthea-to-bigquery/tree/bulk-data-scratch/bulk-data-loader
 
 ## Participate!
