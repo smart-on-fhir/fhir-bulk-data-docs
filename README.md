@@ -17,6 +17,8 @@ Bulk data servers should implement the OAuth based [SMART backend services](http
 
 This FHIR Operation initiates the asynchronous generation of data files for all patients or a group of patients contained in a FHIR server.
 
+Note: Only data the client application has security/authorization to view should be returned.
+
 #### Endpoint - All Patients
 
 ```GET [fhir base]/Patient/$export```
@@ -207,7 +209,7 @@ Specifies the format of the file being returned. Optional, but currently only ap
   
   https://github.com/smart-on-fhir/sample-apps-stu3/tree/master/fhir-downloader
 
-- Python client application to stream data from a Bulk FHIR API into BigQuery, determining schema on the fly ((supports v0.1)
+- Python client application to stream data from a Bulk FHIR API into BigQuery, determining schema on the fly (supports v0.1)
 
   https://github.com/jmandel/synthea-to-bigquery/tree/bulk-data-scratch/bulk-data-loader
 
