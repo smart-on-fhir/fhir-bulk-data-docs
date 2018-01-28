@@ -217,7 +217,7 @@ Specifies the format of the file being returned. Optional, but currently only ap
   
   https://github.com/plangthorne/python-fhir/blob/master/demo/BulkDataDemo.ipynb (demo notebook)
 
-- Go client hat fetches data and stores to local FS, google cloud storage and/or export to bigquery (supports (v0.1)
+- Go client that fetches data and stores to local FS, google cloud storage and/or export to bigquery (supports v0.1)
 
   https://github.com/toby-hu/test/tree/master/client
 
