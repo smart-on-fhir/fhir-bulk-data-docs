@@ -41,19 +41,19 @@ FHIR Operation to obtain data on all patients listed in a single [FHIR Group Res
 
 - ```_outputFormat``` (string, optional, defaults to ```application/fhir+ndjson```)
 
-The format for the generated bulk data files. Currently, only [ndjson](http://ndjson.org/) is supported. Servers should support the full content type of ```application/fhir+ndjson``` as well as abbreviated representations including ```application/ndjson``` and ```ndjson```.
+  The format for the generated bulk data files. Currently, only [ndjson](http://ndjson.org/) is supported. Servers should support the full content type of ```application/fhir+ndjson``` as well as abbreviated representations including ```application/ndjson``` and ```ndjson```.
 
 - ```_since``` (FHIR instant type, optional)  
 
-Resources updated after this period will be included in the response
+  Resources updated after this period will be included in the response
 
-Note: This parameter was named ```start``` in an earlier version of this proposal
+  Note: This parameter was named ```start``` in an earlier version of this proposal
 
 - ```_type``` (string of comma-delimited FHIR resource types, optional)
 
-Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all resources in the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) as well as resources that are helpful in interpreting the patient data such as Organization and Practitioner.
+  Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all resources in the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) as well as resources that are helpful in interpreting the patient data such as Organization and Practitioner.
 
-Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
+  Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
 
 #### Response - Success
 
