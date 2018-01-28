@@ -2,7 +2,7 @@
 
 ## Overview
 
-Providers and organizations accountable for managing the health of populations often need to efficiently access large volumes of information on a a group of individuals. For example, a health system may want to periodically copy updated clinical data from an EHR to a research database, or a provider may want to send clinical data on a roster of patients to their ACO to calculate quality measures. Currently, this is often done by exporting a specific subset of fields from the source system into a file format like CSV, transmitting these files to a server, and then importing the files into the target system. The effort involved in manually mapping the data fields to read and write these extracts raises the cost of integration projects and can act as a counter incentive to data liquidity. 
+Providers and organizations accountable for managing the health of populations often need to efficiently access large volumes of information on a group of individuals. For example, a health system may want to periodically copy updated clinical data from an EHR to a research database, or a provider may want to send clinical data on a roster of patients to their ACO to calculate quality measures. Currently, this is often done by exporting a specific subset of fields from the source system into a file format like CSV, transmitting these files to a server, and then importing the files into the target system. The effort involved in manually mapping the data fields to read and write these extracts raises the cost of integration projects and can act as a counter incentive to data liquidity. 
 
 Existing FHIR APIs work well for accessing small amounts of data, but large exports can require hundreds of thousands of requests. This document outlines a standardized, FHIR based approach to bulk data export.
 
@@ -122,7 +122,7 @@ Note: Clients should follow the an [exponential backoff](https://en.wikipedia.or
   
   Each file item should contain the following fields:
     - ```type``` - the FHIR resource type that is contained in the file. Note: Each file may only contain resources of one type, but a server may create more than one file for each resources type returned. The number of resources contained in a file is may vary between servers. If no data is found for a resource, the server should not return an output item for it in the response.
-	- ```url``` - the path to the file. The format of the file should reflect that requested in the ```output-format``` parameter of the initial kick-off request.
+	- ```url``` - the path to the file. The format of the file should reflect that requested in the ```_outputFormat``` parameter of the initial kick-off request.
     
 	Example response body:
     
