@@ -213,7 +213,7 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
   https://github.com/jmandel/synthea-to-bigquery/tree/bulk-data-scratch/bulk-data-loader
 
-- Python client with auth support that converts a bulk data server into a generator for lightweight iteration through bulk resources returned (supports v0.1)
+- Python client with auth support that converts a bulk data server into a generator for lightweight iteration through bulk resources returned (supports v0.2)
 
   https://github.com/plangthorne/python-fhir (code)
   
