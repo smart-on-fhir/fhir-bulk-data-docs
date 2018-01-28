@@ -153,6 +153,12 @@ Using the urls supplied in the completed status request body, clients can downlo
 
 ```GET [url from status request output field]```
 
+#### Headers
+
+- ```Accept``` (optional, defaults to ```application/fhir+ndjson```)
+
+Specifies the format of the file being returned. Optional, but currently only application/fhir+ndjson is supported.
+
 #### Response - Success
 
 - HTTP status of ```200 OK```
