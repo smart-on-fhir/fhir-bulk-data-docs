@@ -1,20 +1,212 @@
-# FHIR Bulk Data Proposal (aka "Flat FHIR")
+# FHIR Bulk Data Proposal
 
-## Goals
-Healthcare organizations have many reasons for bulk-data export, including, populating a data warehouse for operational or clinical analytics, leveraging population health and decision support tools from external vendor, migrating from one EHR vendor to another, and submitting data to regulatory agencies like CMS. Today, bulk export is often accomplished through proprietary pipelines and every data transfer operation becomes an engineering and mapping project. This specification will sketch out a FHIR-based approach to bulk export.
+## Overview
 
-## Resources
-- Join us at the FHIR Janunary 2018 Connectation bulk data track to work on this specification:
-[http://wiki.hl7.org/index.php?title=FHIR_Connectathon_17](http://wiki.hl7.org/index.php?title=FHIR_Connectathon_17)
+Providers and organizations accountable for managing the health of populations often need to efficiently access large volumes of information on a a group of individuals. For example, a health system may want to periodically copy updated clinical data from an EHR to a research database, or a provider may want to send clinical data on a roster of patients to their ACO to calculate quality measures. Currently, this is often done by exporting a specific subset of fields from the source system into a file format like CSV, transmitting these files to a server, and then importing the files into the target system. The effort involved in manually mapping the data fields to read and write these extracts raises the cost of integration projects and can act as a counter incentive to data liquidity. 
 
-- Overview blog post describing the project (slightly out of date technically): 
-[http://www.healthintersections.com.au/?p=2689](http://www.healthintersections.com.au/?p=2689)
+Existing FHIR APIs work well for accessing small amounts of data, but large exports can require hundreds of thousands of requests. This document outlines a standardized, FHIR based approach to bulk data export.
 
-- Description of proposed APIs to be tested at FHIR Janunary 2018 Connectation bulk data track: [http://wiki.hl7.org/index.php?title=201801_Bulk_Data](http://wiki.hl7.org/index.php?title=201801_Bulk_Data)
+## Request Flow
 
-- Authentication approach with SMART backend services specification: 
-[http://docs.smarthealthit.org/authorization/backend-services/](http://docs.smarthealthit.org/authorization/backend-services/
-)
+### Authorization
 
-- Initial output format supported: 
-[http://ndjson.org/](http://ndjson.org/)
+Bulk data servers should implement the OAuth based [SMART backend services](http://docs.smarthealthit.org/authorization/backend-services/) authorization process. On the requests outlined below, clients should include an ```Authorization``` header containing the bearer token received from the authorization flow. If the server responds to a request with a ```401 Unauthorized``` header, the client should follow the authorization flow to obtain a new token.
+
+---
+### Bulk Data Kick-off Request
+
+This FHIR Operation initiates the asynchronous generation of data files for all patients or a group of patients contained in a FHIR server.
+
+#### Endpoint - All Patients
+
+```GET [fhir base]/Patient/$export```
+
+#### Endpoint - Group of Patients
+
+```GET [fhir base]/Patients/[id]/$export```
+
+FHIR Operation to obtain data on all patients listed in a single [FHIR Group Resource](https://www.hl7.org/fhir/group.html). Note: How these groups are defined will be implementation specific for each clinical system. For example, a payer may send a healthcare institution a roster file that can be imported into their EHR to create or update a FHIR group. FHIR based roster management is out of scope for the bulk data project, but would be a valuable project.
+
+#### Headers
+
+- ```Accept``` (required)
+
+  Specifies the format of the OperationOutcome response to the kick-off request in the case of an error. Currently, only application/fhir+json is supported.
+
+- ```Prefer``` (required)
+
+  Specifies whether the response is immediate or asynchronous. Currently must be set to ```respond-async```.
+
+#### Query String Parameters
+
+- ```_outputFormat``` (string, optional, defaults to ```application/fhir+ndjson```)
+
+The format for the generated bulk data files. Currently, only [ndjson](http://ndjson.org/) is supported. Servers should support the full content type of ```application/fhir+ndjson``` as well as abbreviated representations including ```application/ndjson``` and ```ndjson```.
+
+- ```_since``` (FHIR instant type, optional)  
+
+Resources updated after this period will be included in the response
+
+Note: This parameter was named ```start``` in an earlier version of this proposal
+
+- ```_type``` (string of comma-delimited FHIR resource types, optional)
+
+Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all resources in the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) as well as resources that are helpful in interpreting the patient data such as Organization and Practitioner.
+
+Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
+
+#### Response - Success
+
+- HTTP Status Code of ```202 Accepted``` 
+- ```Content-Location``` header with a url for subsequent status requests
+- Optionally a FHIR OperationOutcome in the body
+
+#### Response - Error (eg. unsupported search parameter)
+
+- HTTP Status Code of ```4XX``` or ```5XX```
+- Optionally a FHIR OperationOutcome in the body
+
+---
+### Bulk Data Delete Request:
+
+After a bulk data request has been kicked-off, clients can send a delete request to the url provided in the ```Content-Location``` header to cancel the request.
+
+#### Endpoint 
+
+```DELETE [polling content location]```
+
+#### Response - Success
+
+- HTTP Status Code of ```202 Accepted```
+- Optionally a FHIR OperationOutcome in the body
+
+#### Response - Error Status
+
+- HTTP status code of ```4XX``` or ```5XX```
+- Optionally a FHIR OperationOutcome in the body
+
+---
+### Bulk Data Status Request:
+
+After a bulk data request has been kicked-off, clients can poll the url provided in the ```Content-Location``` header to obtain the status of the request.
+
+Note: Clients should follow the an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status
+
+#### Endpoint 
+
+```GET [polling content location]```
+
+#### Response - In-Progress Status
+
+- HTTP Status Code of ```202 Accepted```
+- Optionally an ```X-Progress``` header with a text description of the status of the request that's less than 100 characters. The format of this description is at the server's discretion and may be a percentage complete value or a more general status such as "in progress". Clients can try to parse this value, display it to the user, or log it.
+- Optionally a FHIR OperationOutcome in the body
+
+#### Response - Error Status
+
+- HTTP status code of ```5XX```
+- Optionally a FHIR OperationOutcome in the body
+
+#### Response - Complete Status
+
+- HTTP status of ```200 OK```
+- ```Content-Type header``` of ```application/json```
+-  Optionally an ```Expires``` header indicating when the files listed will no longer be available.
+- A body containing a json object providing metadata and links to the generated bulk data files.
+
+  Required Fields:
+  - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is run. No resources that have a modified data after this instant should be in the response.
+  - ```request``` - the full url of the original bulk data kick-off request
+  - ```secure``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 urls or an internal file server within an organization's firewall.
+  - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no data is returned from the kick-off request, the server should return an empty array. 
+  
+  Each file item should contain the following fields:
+    - ```type``` - the FHIR resource type that is contained in the file. Note: Each file may only contain resources of one type, but a server may create more than one file for each resources type returned. The number of resources contained in a file is may vary between servers. If no data is found for a resource, the server should not return an output item for it in the response.
+	- ```url``` - the path to the file. The format of the file should reflect that requested in the ```output-format``` parameter of the initial kick-off request.
+    
+	Example response body:
+    
+	```json
+    {
+      "transactionTime": "[instant]",
+      "request" : "[base]/Patient/$everything?_type=Patient,Observation", 
+      "secure" : true,
+      "output" : [{
+        "type" : "Patient",
+        "url" : "http://serverpath2/patient_file_1.ndjson"
+      },{
+        "type" : "Patient",
+        "url" : "http://serverpath2/patient_file_2.ndjson"
+      },{
+        "type" : "Observation",
+        "url" : "http://serverpath2/observation_file_1.ndjson"
+      }]
+    }
+    ```
+
+---
+### File Requests:
+
+Using the urls supplied in the completed status request body, clients can download the generated bulk data files (one or more per resource type). Note: These files may be served by a file server rather than a FHIR specific server. Also, if the ```secure``` field in the status body is set to ```true``` the request must include a valid access token in the ```Authorization``` header in these requests.
+
+#### Endpoint 
+
+```GET [url from status request output field]```
+
+#### Response - Success
+
+- HTTP status of ```200 OK```
+- ```Content-Type``` header of ```application/fhir+ndjson```
+- Body of FHIR resources in newline delimited json - [ndjson](http://ndjson.org/) format
+
+#### Response - Error
+
+- HTTP Status Code of ```4XX``` or ```5XX```
+
+## Out of scope in v1 of this specification
+
+- Legal framework for sharing data between partners - BAAs, SLAs, DUAs should continue to be negotiated out-of-band 
+- Real-time data (although data loaded through bulk data can be supplemented at with synchronous FHIR REST API calls)
+- Data transformation and transmission - different step of the ETL process
+- Patient matching (although, it’s possible to include identifiers like subscriber number in FHIR resources)
+- Management of FHIR groups within the clinical system - the bulk data operation will require a valid group id, but does not specify how FHIR Groups resources are created and maintained within a system
+
+## Server Implementations
+
+- SMART (supports v0.1)
+  https://github.com/smart-on-fhir/bulk-data-server (code)
+  https://bulk-data.smarthealthit.org (online)
+- HL7 (supports v0.1)
+  https://test.fhir.org/r3
+- Cerner (supports v0.1)
+  https://fhir-open.stagingcerner.com/stu3/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$everything
+- ONC (supports v0.1)
+  http://52.70.192.201/open-fhir/fhir/ (open)
+  http://52.70.192.201/secure-fhir/view/newuser.html (registration)
+  http://52.70.192.201/secure-fhir/fhir/ (secure)
+
+## Client Implementations
+
+- SMART (supports v0.1)
+  https://github.com/smart-on-fhir/sample-apps-stu3/tree/master/fhir-downloader
+- Josh (supports v0.1)
+  https://github.com/jmandel/synthea-to-bigquery/tree/bulk-data-scratch/bulk-data-loader
+
+## Participate!
+
+- Join the "Bulk Data" stream on https://chat.fhir.org
+- Open an issue or pull request at https://github.com/smart-on-fhir/fhir-bulk-data-docs/
+
+## Change Log:
+
+#### 1/27/2018 (Draft v0.1)
+
+- Moved output links from ```Link``` header to body and defined an output JSON format
+- Added ```output-format``` parameter to differentiate between the format of the response to the request and the format of the linked output files
+
+#### 1/28/2018 (Draft v0.2)
+
+- Renamed ```output-format``` parameter to ```_outputFormat``` since it can apply to any async request
+- Added ```DELETE``` method to status endpoint
+- Changed the operation name to ```$export``` (under discussion)
+- Changed ```start``` parameter to ```_since``` to align with existing FHIR semantics
