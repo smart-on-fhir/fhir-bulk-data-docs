@@ -23,7 +23,7 @@ This FHIR Operation initiates the asynchronous generation of data files for all 
 
 #### Endpoint - Group of Patients
 
-```GET [fhir base]/Patients/[id]/$export```
+```GET [fhir base]/Group/[id]/$export```
 
 FHIR Operation to obtain data on all patients listed in a single [FHIR Group Resource](https://www.hl7.org/fhir/group.html). Note: How these groups are defined will be implementation specific for each clinical system. For example, a payer may send a healthcare institution a roster file that can be imported into their EHR to create or update a FHIR group. FHIR based roster management is out of scope for the bulk data project, but would be a valuable project.
 
