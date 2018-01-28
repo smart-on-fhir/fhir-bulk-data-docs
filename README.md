@@ -203,13 +203,23 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 ## Client Implementations
 
-- SMART (supports v0.1)
+- SMART NodeJs (supports v0.1)
   
   https://github.com/smart-on-fhir/sample-apps-stu3/tree/master/fhir-downloader
 
-- Josh (supports v0.1)
+- Python client application to stream data from a Bulk FHIR API into BigQuery, determining schema on the fly ((supports v0.1)
 
   https://github.com/jmandel/synthea-to-bigquery/tree/bulk-data-scratch/bulk-data-loader
+
+- Python client with auth support that converts a bulk data server into a generator for lightweight iteration through bulk resources returned (supports v0.1)
+
+  https://github.com/plangthorne/python-fhir (code)
+  
+  https://github.com/plangthorne/python-fhir/blob/master/demo/BulkDataDemo.ipynb (demo notebook)
+
+- Go client hat fetches data and stores to local FS, google cloud storage and/or export to bigquery (supports (v0.1)
+
+  https://github.com/toby-hu/test/tree/master/client
 
 ## Participate!
 
