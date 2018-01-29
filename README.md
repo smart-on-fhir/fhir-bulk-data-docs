@@ -53,7 +53,7 @@ FHIR Operation to obtain data on all patients listed in a single [FHIR Group Res
 
 - ```_type``` (string of comma-delimited FHIR resource types, optional)
 
-  Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all supported and use case applicable resources. The [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) should act as a point of reference for possible resources to be returned as well as other resources outside of the patient compartment that are helpful in interpreting the patient data such as Organization and Practitioner.
+  Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all supported and use case applicable resources. The [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) should act as a point of reference for recommended resources to be returned as well as other resources outside of the patient compartment that are helpful in interpreting the patient data such as Organization and Practitioner.
 
   Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
 
