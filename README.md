@@ -33,7 +33,7 @@ FHIR Operation to obtain data on all patients listed in a single [FHIR Group Res
 
 - ```Accept``` (required)
 
-  Specifies the format of the OperationOutcome response to the kick-off request in the case of an error. Currently, only application/fhir+json is supported.
+  Specifies the format of the optional OperationOutcome response to the kick-off request. Currently, only application/fhir+json is supported.
 
 - ```Prefer``` (required)
 
