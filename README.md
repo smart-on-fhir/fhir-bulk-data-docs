@@ -17,7 +17,7 @@ Bulk data servers should implement the OAuth based [SMART backend services](http
 
 This FHIR Operation initiates the asynchronous generation of data files for all patients or a group of patients contained in a FHIR server.
 
-Note: Only data the client application has security/authorization to view should be returned.
+Note: Only data the client application has authorization to access and that the relevant business agreements allow should be returned.
 
 #### Endpoint - All Patients
 
@@ -53,7 +53,7 @@ FHIR Operation to obtain data on all patients listed in a single [FHIR Group Res
 
 - ```_type``` (string of comma-delimited FHIR resource types, optional)
 
-  Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all supported and use case applicable resources. The [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) should act as a point of reference for recommended resources to be returned as well as other resources outside of the patient compartment that are helpful in interpreting the patient data such as Organization and Practitioner.
+  Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all supported resources that the client has authorization to access and that the relevant business agreements allow. The [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) should act as a point of reference for recommended resources to be returned as well as other resources outside of the patient compartment that are helpful in interpreting the patient data such as Organization and Practitioner.
 
   Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
 
@@ -123,8 +123,8 @@ Note: Clients should follow the an [exponential backoff](https://en.wikipedia.or
   - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no data is returned from the kick-off request, the server should return an empty array. 
   
   Each file item should contain the following fields:
-    - ```type``` - the FHIR resource type that is contained in the file. Note: Each file may only contain resources of one type, but a server may create more than one file for each resources type returned. The number of resources contained in a file is may vary between servers. If no data is found for a resource, the server should not return an output item for it in the response.
-	- ```url``` - the path to the file. The format of the file should reflect that requested in the ```_outputFormat``` parameter of the initial kick-off request.
+   - ```type``` - the FHIR resource type that is contained in the file. Note: Each file may only contain resources of one type, but a server may create more than one file for each resources type returned. The number of resources contained in a file is may vary between servers. If no data is found for a resource, the server should not return an output item for it in the response.
+   - ```url``` - the path to the file. The format of the file should reflect that requested in the ```_outputFormat``` parameter of the initial kick-off request.
     
 	Example response body:
     
