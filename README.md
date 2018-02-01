@@ -92,7 +92,7 @@ After a bulk data request has been kicked-off, clients can send a delete request
 
 After a bulk data request has been kicked-off, clients can poll the url provided in the ```Content-Location``` header to obtain the status of the request.
 
-Note: Clients should follow the an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status
+Note: Clients should follow the an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests.
 
 #### Endpoint 
 
@@ -241,3 +241,7 @@ Specifies the format of the file being returned. Optional, but currently only ap
 - Added ```DELETE``` method to status endpoint
 - Changed the operation name to ```$export``` (under discussion)
 - Changed ```start``` parameter to ```_since``` to align with existing FHIR semantics
+
+#### 2/1/2018 (Draft v0.2.1)
+
+- Added recommendation around use of ```Retry-After``` header
