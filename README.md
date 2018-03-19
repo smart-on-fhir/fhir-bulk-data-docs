@@ -131,7 +131,7 @@ Note: Clients should follow the an [exponential backoff](https://en.wikipedia.or
 	```json
     {
       "transactionTime": "[instant]",
-      "request" : "[base]/Patient/$everything?_type=Patient,Observation", 
+      "request" : "[base]/Patient/$export?_type=Patient,Observation", 
       "secure" : true,
       "output" : [{
         "type" : "Patient",
