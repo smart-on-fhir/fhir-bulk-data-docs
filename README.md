@@ -181,7 +181,7 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 ## Server Implementations
 
-- SMART (supports v0.1)
+- SMART (supports v0.2)
 
   https://github.com/smart-on-fhir/bulk-data-server (code)
   
@@ -205,7 +205,7 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 ## Client Implementations
 
-- SMART NodeJs (supports v0.1)
+- SMART NodeJs (supports v0.2)
   
   https://github.com/smart-on-fhir/sample-apps-stu3/tree/master/fhir-downloader
 
