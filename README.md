@@ -209,9 +209,9 @@ Specifies the format of the file being returned. Optional, but currently only ap
   
   https://github.com/smart-on-fhir/sample-apps-stu3/tree/master/fhir-downloader
 
-- Python client application to stream data from a Bulk FHIR API into BigQuery, determining schema on the fly (supports v0.1)
+- Python client application to stream data from a Bulk FHIR API into BigQuery, determining schema on the fly (supports v0.2)
 
-  https://github.com/jmandel/synthea-to-bigquery/tree/bulk-data-scratch/bulk-data-loader
+  https://github.com/jmandel/fhir-bulk-data-to-bigquery
 
 - Python client with auth support that converts a bulk data server into a generator for lightweight iteration through bulk resources returned (supports v0.2)
 
