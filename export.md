@@ -10,7 +10,7 @@ Existing FHIR APIs work well for accessing small amounts of data, but large expo
 
 ### Authorization
 
-Bulk data servers should implement the OAuth based [SMART backend services](http://docs.smarthealthit.org/authorization/backend-services/) authorization process. On the requests outlined below, clients should include an ```Authorization``` header containing the bearer token received from the authorization flow. If the server responds to a request with a ```401 Unauthorized``` header, the client should follow the authorization flow to obtain a new token.
+Bulk data servers should implement the OAuth based [SMART backend services](./authorization.md) authorization process. On the requests outlined below, clients should include an ```Authorization``` header containing the bearer token received from the authorization flow. If the server responds to a request with a ```401 Unauthorized``` header, the client should follow the authorization flow to obtain a new token.
 
 ---
 ### Bulk Data Kick-off Request
