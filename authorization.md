@@ -15,8 +15,11 @@ communicate with a FHIR Resoure Server.
 * The service is able to protect a private key
 * The service requires access to a population of patients rather than a single patient
 
-
 ### Examples
+
+* An analytics platform or data warehouse that periodically performs a bulk data
+export from an electronic health record system to provide insights into
+a population of patients.
 
 * A lab monitoring service that determines which patients are currently
 admitted to the hospital, reviews incoming laboratory results, and generates
@@ -40,7 +43,7 @@ at registration time **every SMART backend service must**:
 * Register a fixed "issuer URL" with the EHR
 * Register a public RSA key with the EHR (for RSA SHA-256 signatures)
 
-Upon registration, the server assigns a client_id to the client, which 
+Upon registration, the server assigns a `client_id`, which 
 the client uses when obtaining an access token.
 
 ## Obtaining an access token
@@ -175,7 +178,7 @@ Servers SHALL
 * check that the JWT `exp` is valid
 * check that the JWT `aud` matches the server's OAuth token URL (the URL to which the token was `POST`ed)
 * check that this is not a jti value seen before (prevention of replay attacks)
-* ensure that the client_id provided is valid etc 
+* ensure that the `client_id` provided is known and associated with the supplied `iss`
 
 ## Scopes
 
