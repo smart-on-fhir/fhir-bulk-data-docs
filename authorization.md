@@ -184,8 +184,9 @@ Servers SHALL
 
 As there is no user or launch context when performing backed services authorization, 
 the existing SMART on FHIR scopes are not appropriate. Instead, applications use 
-system scopes, which have the format `system/:resourceType.(read|write|*)`. These have
-the same meanings as their matching `user/:resourceType.(read|write|*)` scopes.
+system scopes, which have the format `system/(:resourceType|*).(read|write|*)`. These have
+the same meanings as their matching `user/(:resourceType|*).(read|write|*)` scopes,
+but associated with the permissions of the authorized client instead of a human end-user.
 
 ## Worked example
 
