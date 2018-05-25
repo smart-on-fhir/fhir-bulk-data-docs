@@ -9,11 +9,10 @@ has been authorized up-front, at registration time, and describes the runtime
 process by which the service acquires an access token that can be used to
 communicate with a FHIR Resoure Server.
 
-#### **Use this profile** when all of the following conditions apply:
+#### **Use this profile** when the following conditions apply:
 
 * The service runs automatically, without user interaction
 * The service is able to protect a private key
-* The service requires access to a population of patients rather than a single patient
 
 ### Examples
 
@@ -27,6 +26,9 @@ clinical alerts when specific trigger conditions are met.
 
 * A data integration service that periodically queries the EHR for newly
 registered patients and synchronizes these with an external database
+
+* A utilization tracking system that queries an EHR every minute for
+bed and room usage and displays statistics on a wall monitor.
 
 ## Registering a SMART Backend Service
 
