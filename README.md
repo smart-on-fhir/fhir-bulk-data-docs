@@ -12,8 +12,5 @@ Existing FHIR APIs work well for accessing small amounts of data, but large expo
 
 ## Resources
  - [Overview Presentation](https://docs.google.com/presentation/d/14ZHmam9hwz6-SsCG1YqUIQnJ56bvSqEatebltgEVR6c/edit?usp=sharing)
+ - [Client and Server Implementations](./implementations.md)
  - [Discussion Group (FHIR Zulip "Bulk Data" Track)](https://chat.fhir.org/#narrow/stream/bulk.20data)
- - [SMART Server Reference Implementation](https://bulk-data.smarthealthit.org) [(code)](https://github.com/smart-on-fhir/bulk-data-server)
- - [Other Server Implementations](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/export.md#server-implementations)
- - [SMART Client Reference Implementation](https://github.com/smart-on-fhir/sample-apps-stu3/tree/master/fhir-downloader)
- - [Other Client Implementations](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/export.md#client-implementations)
