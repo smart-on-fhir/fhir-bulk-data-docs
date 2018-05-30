@@ -84,9 +84,11 @@ After a bulk data request has been kicked-off, clients can send a delete request
 ---
 ### Bulk Data Status Request:
 
-After a bulk data request has been kicked-off, clients can poll the url provided in the ```Content-Location``` header to obtain the status of the request.
+After a bulk data request has been kicked-off, clients can poll the url provided in the ```Content-Location``` header to obtain the status of the request. 
 
 Note: Clients should follow the an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests.
+
+Note: The ```Accept``` header for this request should be ```application/json```, although in the case of an error the response will be the JSON form of a FHIR OperationOutcome resource.
 
 #### Endpoint 
 
@@ -96,12 +98,11 @@ Note: Clients should follow the an [exponential backoff](https://en.wikipedia.or
 
 - HTTP Status Code of ```202 Accepted```
 - Optionally an ```X-Progress``` header with a text description of the status of the request that's less than 100 characters. The format of this description is at the server's discretion and may be a percentage complete value or a more general status such as "in progress". Clients can try to parse this value, display it to the user, or log it.
-- Optionally a FHIR OperationOutcome in the body
 
 #### Response - Error Status
 
 - HTTP status code of ```5XX```
-- Optionally a FHIR OperationOutcome in the body
+- Optionally a JSON FHIR OperationOutcome in the body
 
 #### Response - Complete Status
 
