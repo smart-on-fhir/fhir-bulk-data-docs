@@ -204,6 +204,6 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 - Added recommendation around use of ```Accept``` header in status request
 
-#### 5/30/2018 (Draft v3.0.0)
+#### 5/30/2018 (Draft v0.3.0)
 
 - Added system wide $export
