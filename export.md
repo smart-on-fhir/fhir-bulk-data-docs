@@ -9,7 +9,7 @@ Bulk data servers should implement the OAuth based [SMART backend services](./au
 ---
 ### Bulk Data Kick-off Request
 
-This FHIR Operation initiates the asynchronous generation of data files for all patients or a group of patients contained in a FHIR server.
+This FHIR Operation initiates the asynchronous generation of data files for all patients, a group of patients, or all available data contained in a FHIR server.
 
 Note: Only data the client application has authorization to access and that the relevant business agreements allow should be returned.
 
@@ -22,6 +22,12 @@ Note: Only data the client application has authorization to access and that the 
 ```GET [fhir base]/Group/[id]/$export```
 
 FHIR Operation to obtain data on all patients listed in a single [FHIR Group Resource](https://www.hl7.org/fhir/group.html). Note: How these groups are defined will be implementation specific for each clinical system. For example, a payer may send a healthcare institution a roster file that can be imported into their EHR to create or update a FHIR group. FHIR based roster management is out of scope for the bulk data project, but would be a valuable project.
+
+#### Endpoint - System Level Export
+
+```GET [fhir base]/$export```
+
+Export data from a FHIR server whether or not it is associated with a patient. This supports use cases like backing up a server or exporting terminology data by restricting the resources returned using the ```_type``` parameter.
 
 #### Headers
 
@@ -193,3 +199,11 @@ Specifies the format of the file being returned. Optional, but currently only ap
 #### 2/1/2018 (Draft v0.2.1)
 
 - Added recommendation around use of ```Retry-After``` header
+
+#### 5/30/2018 (Draft v0.2.2)
+
+- Added recommendation around use of ```Accept``` header in status request
+
+#### 5/30/2018 (Draft v3.0.0)
+
+- Added system wide $export
