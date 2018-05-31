@@ -206,4 +206,5 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 #### 5/30/2018 (Draft v0.3.0)
 
-- Added system wide $export
+- Added system wide `$export`
+- Renamed `secure` to `requiresAuthorizationToken`
