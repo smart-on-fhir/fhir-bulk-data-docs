@@ -120,7 +120,7 @@ Note: The ```Accept``` header for this request should be ```application/json```,
   Required Fields:
   - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is run. No resources that have a modified data after this instant should be in the response.
   - ```request``` - the full url of the original bulk data kick-off request
-  - ```secure``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 urls or an internal file server within an organization's firewall.
+  - ```requiresAuthorizationToken``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 urls or an internal file server within an organization's firewall.
   - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no data is returned from the kick-off request, the server should return an empty array. 
   
   Each file item should contain the following fields:
@@ -133,7 +133,7 @@ Note: The ```Accept``` header for this request should be ```application/json```,
     {
       "transactionTime": "[instant]",
       "request" : "[base]/Patient/$export?_type=Patient,Observation", 
-      "secure" : true,
+      "requiresAuthorizationToken" : true,
       "output" : [{
         "type" : "Patient",
         "url" : "http://serverpath2/patient_file_1.ndjson"
@@ -150,7 +150,7 @@ Note: The ```Accept``` header for this request should be ```application/json```,
 ---
 ### File Requests:
 
-Using the urls supplied in the completed status request body, clients can download the generated bulk data files (one or more per resource type). Note: These files may be served by a file server rather than a FHIR specific server. Also, if the ```secure``` field in the status body is set to ```true``` the request must include a valid access token in the ```Authorization``` header in these requests.
+Using the urls supplied in the completed status request body, clients can download the generated bulk data files (one or more per resource type). Note: These files may be served by a file server rather than a FHIR specific server. Also, if the ```requiresAuthorizationToken``` field in the status body is set to ```true``` the request must include a valid access token in the ```Authorization``` header in these requests.
 
 #### Endpoint 
 
@@ -206,4 +206,5 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 #### 5/30/2018 (Draft v0.3.0)
 
-- Added system wide $export
+- Added system wide `$export`
+- Renamed `secure` to `requiresAuthorizationToken`
