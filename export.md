@@ -94,7 +94,7 @@ After a bulk data request has been kicked-off, clients can poll the url provided
 
 Note: Clients should follow the an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests.
 
-Note: The ```Accept``` header for this request should be ```application/json```, although in the case of an error the response will be the JSON form of a FHIR OperationOutcome resource.
+Note: The ```Accept``` header for this request should be ```application/json```. In the case that errors prevent the export from completinig, the response will a JSON-encoded FHIR OperationOutcome resource. 
 
 #### Endpoint 
 
@@ -109,6 +109,7 @@ Note: The ```Accept``` header for this request should be ```application/json```,
 
 - HTTP status code of ```5XX```
 - Optionally a JSON FHIR OperationOutcome in the body
+- Even if some resources cannot successfully be exported, the overall export operation may still succeed. In this case, the `Response.error` array of the completion Response must be populated (see below) with a file containing `OperationOutcome` resources to indicate what went wrong.
 
 #### Response - Complete Status
 
@@ -122,11 +123,16 @@ Note: The ```Accept``` header for this request should be ```application/json```,
   - ```request``` - the full url of the original bulk data kick-off request
   - ```requiresAuthorizationToken``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 urls or an internal file server within an organization's firewall.
   - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no data is returned from the kick-off request, the server should return an empty array. 
+  - ```error``` - array of error file items following the same structure as the `output` array. Note: If no errors occurred, the server should return an empty array.  Note: Only the `OperationOutcome` resource type is currently supported. 
   
   Each file item should contain the following fields:
    - ```type``` - the FHIR resource type that is contained in the file. Note: Each file may only contain resources of one type, but a server may create more than one file for each resources type returned. The number of resources contained in a file is may vary between servers. If no data is found for a resource, the server should not return an output item for it in the response.
    - ```url``` - the path to the file. The format of the file should reflect that requested in the ```_outputFormat``` parameter of the initial kick-off request.
+   
+  Each file item may optionally contain the following field:
+   - ```count``` - the number of resources in the file, represented as a JSON number.
     
+
 	Example response body:
     
 	```json
@@ -143,6 +149,10 @@ Note: The ```Accept``` header for this request should be ```application/json```,
       },{
         "type" : "Observation",
         "url" : "http://serverpath2/observation_file_1.ndjson"
+      }],
+      "error" : [{
+        "type" : "OperationOutcome",
+        "url" : "http://serverpath2/err_file_1.ndjson"
       }]
     }
     ```
