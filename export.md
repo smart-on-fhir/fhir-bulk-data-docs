@@ -218,3 +218,4 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 - Added system wide `$export`
 - Renamed `secure` to `requiresAuthorizationToken`
+- Added `error`  and `count` properties to copmletion response
