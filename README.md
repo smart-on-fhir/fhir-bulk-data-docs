@@ -14,7 +14,7 @@ Existing FHIR APIs work well for accessing small amounts of data, but large expo
 These specifications are designed to support sharing any data that can be represented in FHIR. This means they should be useful for such diverse systems as:
 
 * "Native" FHIR servers that store FHIR resources directly
-* EHR systems and population health tools implementing FHIR as an interoperability layetr
+* EHR systems and population health tools implementing FHIR as an interoperability layer
 * Financial systems implementing FHIR as an interoperability layer
 
 ### Common Clinical Data Set
