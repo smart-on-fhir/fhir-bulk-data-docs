@@ -179,7 +179,7 @@ Servers SHALL
 * validate the signature on the JWT
 * check that the JWT `exp` is valid
 * check that the JWT `aud` matches the server's OAuth token URL (the URL to which the token was `POST`ed)
-* check that this is not a jti value seen before (prevention of replay attacks)
+* check that this is not a `jti` value previously encountered for the given `sub` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
 * ensure that the `client_id` provided is known and associated with the supplied `iss`
 
 ## Scopes
