@@ -56,7 +56,7 @@ considered "pre-authorized" to access clinical data. Then, at runtime, the
 backend service must obtain an access token in order to work with clinical
 data. Such access tokens can be issued automatically, without need for human
 intervention, and they are short-lived, with a *recommended expiration time of
-fifteen minutes*.
+five minutes*.
 
 To obtain an access token, the service uses an OAuth 2.0 client credentials
 flow, with a [JWT
@@ -161,7 +161,7 @@ The access token response is a JSON object, with the following properties:
     <tr>
       <td><code>expires_in</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The lifetime in seconds of the access token. The recommended value is <code>900</code>, for a fifteen-minute token lifetime.</td>
+      <td>The lifetime in seconds of the access token. The recommended value is <code>300</code>, for a five-minute token lifetime.</td>
     </tr>
     <tr>
       <td><code>scope</code></td>
@@ -254,7 +254,7 @@ grant_type=client_credentials&scope=system%2F*.read%20system%2FCommunicationRequ
 {
   "access_token": "m7rt6i7s9nuxkjvi8vsx",
   "token_type": "bearer",
-  "expires_in": 900,
+  "expires_in": 300,
   "scope": "system/*.read system/CommunicationRequest.write"
 }
 ```
