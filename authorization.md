@@ -30,6 +30,12 @@ registered patients and synchronizes these with an external database
 * A utilization tracking system that queries an EHR every minute for
 bed and room usage and displays statistics on a wall monitor.
 
+* A clinician producivity tool runs through a roster of clinicians
+and obtains access tokens to act as each one in turn, for the purposes
+of perfoming anlaytics queries. (Note that this use case requires
+a backend service to act "on behalf of" specific users, to ensure
+that the analytics queries are properly scoped.)
+
 ## Registering a SMART Backend Service
 
 Before a SMART backend service can run against an EHR, the service must be
@@ -45,8 +51,6 @@ at registration time **every SMART backend service must**:
 * Register a fixed "issuer URL" with the EHR
 * Register a public RSA key with the EHR (for RSA SHA-256 signatures)
 
-Upon registration, the server assigns a `client_id`, which 
-the client uses when obtaining an access token.
 
 ## Obtaining an access token
 
@@ -59,19 +63,21 @@ intervention, and they are short-lived, with a *recommended expiration time of
 five minutes*.
 
 To obtain an access token, the service uses an OAuth 2.0 client credentials
-flow, with a [JWT
-assertion](https://tools.ietf.org/html/rfc7523) as its
-client authenticaiton mechanism. The exchange, depicted below, allows the
-backend service to authenticate to the EHR and request a short-lived
-access token:
+flow, creating its own authorization grant as a JWT in accordance with a [JWT
+assertion](https://tools.ietf.org/html/rfc7523#section-2.1). No explicit
+client authentication mechanism is required, because the authorization JWT
+can be authenticated directly. The exchange, depicted below, allows the
+backend service to request a short-lived access token:
 
-<img class="sequence-diagram-raw"  src="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQmFja2VuZCBTZXJ2aWNlIEF1dGhvcml6YXRpb24KCm5vdGUgb3ZlciBBcHA6ICBDcmVhdGUgYW5kIHNpZ24gYXV0aGVudGljACsFIEpXVCBcbntcbiAgImlzcyI6ICJodHRwczovL3thcHAgdXJsfSIsABoFc3ViIjogImFwcF9jbGllbnRfaWQAFAdleHAiOiAxNDIyNTY4ODYwLCAATAVhdWQARA10b2tlbgBICyAianRpIjogInJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJcbn0gLS0-AIE7BndpdGggYXBwJ3MgcHJpdmF0ZSBrZXkgKFJTQSBTSEEtMjU2KQCBdhBzY29wZT1zeXN0ZW0vKi5yZWFkJlxuZ3JhbnRfdHlwZT0AgUoHY3JlZGVudGlhbHMmXG4AgV8HYXNzZXJ0aW9uACUGdXJuOmlldGY6cGFyYW1zOm9hdXRoOgCCDAYtACMJLXR5cGU6and0LWJlYXJlcgA8Ez17c2lnbmVkAIJ_FGZyb20gYWJvdmV9CgpBcHAtPkVIUgCDZgUAg3MFZXI6ICBQT1NUIACCSRNcbihTYW1lIFVSTCBhcwCDAAYARgYpAIQTDABAEUlzc3VlIG5ldyAAgyMFOgCEEgUiYWNjZXNzXwCDNgUiOiAic2VjcmV0LQCDRgUteHl6IixcbiJleHBpcmVzX2luIjogOTAwLFxuLi4uXG59CgCBKA8tPgCFEQVbAFAGAGMGIHJlc3BvbnNlXQoKCgo&s=default"/>
+<img class="sequence-diagram-raw"  src="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQmFja2VuZCBTZXJ2aWNlIEF1dGhvcml6YXRpb24KCm5vdGUgb3ZlciBBcHA6ICBDcmVhdGUgYW5kIHNpZ24gYQAjDCBKV1QgXG57XG4gICJpc3MiOiAiaHR0cHM6Ly97YXBwIHVybH0iLAAaBXN1YgADHGV4cCI6IDE0MjI1Njg4NjAsIABQBWF1ZABIDXRva2VuAEwLICJqdGkiOiAicmFuZG9tLW5vbi1yZXVzYWJsZS1qd3QtaWQtMTIzIlxufSAtLT4AgT4Gd2l0aCBhcHAncyBwcml2YXRlIGtleSAoUlNBIFNIQS0yNTYpAIF5EHNjb3BlPXN5c3RlbS8qLnJlYWQmXG5ncmFudF90eXBlPXVybjppZXRmOnBhcmFtczpvYXV0aDoAHAUtIHR5cGU6and0LWJlYXJlciZcbmFzc2VydGlvbj17c2lnbmVkAIJHE2Zyb20gYWJvdmV9CgpBcHAtPkVIUgCDLAUAgzkFZXI6ICBQT1NUIACCDBNcbihTYW1lIFVSTCBhcwCCQwYARgYpAINZDABAEUlzc3VlIG5ldyAAgmYFOgCDWQUiYWNjZXNzXwCCeQUiOiAic2VjcmV0LQCDCQUteHl6IixcbiJleHBpcmVzX2luIjogOTAwLFxuLi4uXG59CgCBKA8tPgCEVwVbAFAGAGMGIHJlc3BvbnNlXQoKCgo&s=default"/>
 
 #### Protocol details
 
-Before a backend service can request an access token, it must generate a
-one-time-use JSON Web Token that will be used to authenticate the service to
-the EHR's authorization server. The authentication JWT is constructed with the
+Before a Backend Service can request an access token, it must generate a
+one-time-use JSON Web Token that will be used as an authorization grant. The
+JWT is authenticated (i.e., signed by the Service) and the EHR's authorization server
+(after applying any policies of its own) takes the JWT as authorization to 
+issue an access token. The authorization JWT is constructed with the
 following claims, and then signed with the backend service's private RSA key
 (RSA SHA-256 signature). For a practical reference on JWT, as well as debugging
 tools and client libraries, see http://jwt.io.
@@ -89,7 +95,11 @@ tools and client libraries, see http://jwt.io.
     <tr>
       <td><code>sub</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server</td>
+      <td><ul>
+        <li>If the Backend Service is issuing this request on its own behalf, then <code>sub</code> should be the same as <code>iss</code>.</li>
+        <li>If the Backend Service is issuing this request on behalf of a user, then <code>sub</code> should be a user identifier that the EHR understands. (The recommended approach is a full URI, like <code>https:/ehr.example.org/Practitioner/123</code>.)
+        </li>
+      </td>
     </tr>
     <tr>
       <td><code>aud</code></td>
@@ -109,7 +119,7 @@ tools and client libraries, see http://jwt.io.
   </tbody>
 </table>
 
-After generating an authentication JWT, the service requests a new access token
+After generating an authorization JWT, the service requests a new access token
 via HTTP `POST` to the EHR authorization server's token endpoint URL, using
 content-type `application/x-www-form-urlencoded` with the following parameters:
 
@@ -126,17 +136,12 @@ content-type `application/x-www-form-urlencoded` with the following parameters:
     <tr>
       <td><code>grant_type</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>Fixed value: <code>client_credentials</code></td>
+      <td>Fixed value: <code>urn:ietf:params:oauth:grant- type:jwt-bearer</code></td>
     </tr>
     <tr>
-      <td><code>client_assertion_type</code></td>
+      <td><code>assertion</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>Fixed value: <code>urn:ietf:params:oauth:client-assertion-type:jwt-bearer</code></td>
-    </tr>
-    <tr>
-      <td><code>client_assertion</code></td>
-      <td><span class="label label-success">required</span></td>
-      <td>Signed authentication JWT value (see above)</td>
+      <td>Signed authorization JWT value (see above)</td>
     </tr>
   </tbody>
 </table>
@@ -176,11 +181,11 @@ The access token response is a JSON object, with the following properties:
 <span class="label label-warning">TODO</span>
 
 Servers SHALL
-* validate the signature on the JWT
+* validate the signature on the authorization JWT
 * check that the JWT `exp` is valid
 * check that the JWT `aud` matches the server's OAuth token URL (the URL to which the token was `POST`ed)
 * check that this is not a `jti` value previously encountered for the given `sub` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
-* ensure that the `client_id` provided is known and associated with the supplied `iss`
+* ensure that the supplied `iss` is associated with the signing key used for the JWT
 
 ## Scopes
 
@@ -206,12 +211,12 @@ start monitoring some bilirubin values. It needs to obtain an OAuth2 token with
 the scopes `system/*.read system/CommunicationRequest.write`. To accomplish
 this, the service must first generate a one-time-use authentication JWT with the following claims:
 
-##### 1. Generate a JWT to use for client authentication:
+##### 1. Generate an authorization JWT:
 
 ```
 {
-  "iss": "https://bili-monitoring-service.example.com/",
-  "sub": "bili_monitor",
+  "iss": "https://bili-monitoring-service.example.com",
+  "sub": "https://bili-monitoring-service.example.com",
   "aud": "https://authorize.smarthealthit.org/token",
   "exp": 1422568860,
   "jti": "random-non-reusable-jwt-id-123"
@@ -229,7 +234,9 @@ eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2JpbGktbW9uaXRvcmluZy1
 
 (Note: to inspect this example JWT, you can visit http://jwt.io, choose RS256,
 paste in the provided RSA keys, and then paste the JWT value into the "encoded"
-field.)
+field.
+
+TODO: Update `iss` and `sub` in signed token to match the example.)
 
 ##### 3. Obtain an access token
 
@@ -244,9 +251,8 @@ POST /token HTTP/1.1
 Host: authorize.smarthealthit.org
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=client_credentials&scope=system%2F*.read%20system%2FCommunicationRequest.write&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2JpbGktbW9uaXRvcmluZy1zZXJ2aWNlLmNvbS8iLCJzdWIiOiJiaWxpX21vbml0b3IiLCJhdWQiOiJodHRwczovL2F1dGhvcml6ZS5zbWFydHBsYXRmb3Jtcy5vcmcvdG9rZW4iLCJleHAiOjE0MjI1Njg4NjAsImp0aSI6InJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJ9.Psqfs2IEw_1GcGiSZDdEZquS-iA_gVBpNSedAghL4R9FkJWdvReXvkeBFtgBIa2PjRIQQSLYR7p3XtaH3YERivuxOKCg7OCla8dkLrlaNujhfSdwEdvn-f1GTrytjNTJWEHg0jEDeRoZn7zYy7jFZBYmF0xsRwZe7wisyaCob1w
+grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&scope=system%2F*.read%20system%2FCommunicationRequest.write&assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2JpbGktbW9uaXRvcmluZy1zZXJ2aWNlLmNvbS8iLCJzdWIiOiJiaWxpX21vbml0b3IiLCJhdWQiOiJodHRwczovL2F1dGhvcml6ZS5zbWFydHBsYXRmb3Jtcy5vcmcvdG9rZW4iLCJleHAiOjE0MjI1Njg4NjAsImp0aSI6InJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJ9.Psqfs2IEw_1GcGiSZDdEZquS-iA_gVBpNSedAghL4R9FkJWdvReXvkeBFtgBIa2PjRIQQSLYR7p3XtaH3YERivuxOKCg7OCla8dkLrlaNujhfSdwEdvn-f1GTrytjNTJWEHg0jEDeRoZn7zYy7jFZBYmF0xsRwZe7wisyaCob1w
 ```
-
 
 **Response**
 
