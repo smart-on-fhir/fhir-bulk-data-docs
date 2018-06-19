@@ -29,9 +29,10 @@ client_assertion+{signed authentication JWT}
 ```
 
 The Authorization JWT MUST be digitally signed by the client using the same approach
-as for the Authentication JWT (as described in [Backend Services](./authorization.md)).
+as for the Authentication JWT (described in [Backend Services](./authorization.md)),
+or signed by another issuer that the server accepts.
 
-The authorization JWT SHALL contain claims relating to the resource being requested
+The Authorization JWT SHALL contain claims relating to the resource being requested
 (e.g., FHIR patient resource, data scope, requesting practitioner, reason)
 and claims necessary to help ensure the security of the exchange (expiration time, issuer,
 subject, a token identifier; see [RFC7523](https://tools.ietf.org/html/rfc7523) for details):
