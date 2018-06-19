@@ -30,7 +30,7 @@ registered patients and synchronizes these with an external database
 * A utilization tracking system that queries an EHR every minute for
 bed and room usage and displays statistics on a wall monitor.
 
-## Registering a SMART Backend Service
+## Registering a SMART Backend Service (communicating public keys)
 
 Before a SMART backend service can run against an EHR, the service must be
 registered with that EHR's authorization service.  SMART does not specify a
@@ -39,14 +39,35 @@ consider the [OAuth 2.0 Dynamic Client Registration
 Protocol](https://tools.ietf.org/html/draft-ietf-oauth-dyn-reg) for an
 out-of-the-box solution.
 
-No matter how a backend service registers with an EHR's authorization service,
-at registration time **every SMART backend service must**:
+No matter how a backend service registers with an EHR's authorization service, a 
+backend service should communicate its **public key** to the SMART EHR using a
+[JSON Web Key Set (JWKS)](https://tools.ietf.org/html/rfc7517) by one of the
+following techniques:
 
-* Register a fixed "issuer URL" with the EHR
-* Register a public RSA key with the EHR (for RSA SHA-256 signatures)
+  1. JWKS URL (preferred). This URL communicates the TLS-protected endpoint where the service's
+  JSON Web Key can be found. When provided, this URL will match the `jku` header
+  parameter in the service's Authorization JWTs. An advantage of this approach is that
+  it allows a client to rotate its own keys by updating the hosted content at the JWKS URL.
+  2. JWKS directly (allowed, not preferred). If a backend service cannot host a JWKS at a
+  TLS-protected URL, it may supply a JWKS directly to the EHR at registration time. A limitation
+  of this approach is that it does not enable the client to rotate its keys in-band.
+  
+It is recommended that EHRs should be capable of validating signatures using `RS384` and `ES384`; and that
+backend services be capable of generating signatures using one of these two
+algorithms. Over time, we expect recommended algorithms to evolve, so while
+while this specification recommends algorithms for interoperability, it does
+not mandate any algorithm.
 
-Upon registration, the server assigns a `client_id`, which 
-the client uses when obtaining an access token.
+No matter how a JWKS is communicated to the EHR, each key in the JWKS *must be* an asymmetric
+key whose content is conveyed using "bare key" properties (i.e., direct base64 encoding of 
+key material as integer values). This means that:
+
+* For RSA public keys, each MUST include `n` and `e` values (modulus and exponent) 
+* For ECDSA public keys, each MUST include `crv`, `x`, and `y` values (curve, x-coordinate, and y-coordinate, for EC keys) 
+
+
+Upon registration, the server assigns a `client_id`, which  the client uses when
+obtaining an access token.
 
 ## Obtaining an access token
 
@@ -75,6 +96,39 @@ the EHR's authorization server. The authentication JWT is constructed with the
 following claims, and then signed with the backend service's private RSA key
 (RSA SHA-256 signature). For a practical reference on JWT, as well as debugging
 tools and client libraries, see http://jwt.io.
+
+<table class="table">
+  <thead>
+    <th colspan="3">Authentication JWT Header Values</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>alg</code></td>
+      <td><span class="label label-success">required</span></td>
+      <td>The algorithm used for signing the authentication JWT (e.g., `RS384`, `EC384`).
+      </td>
+    </tr>
+    <tr>
+      <td><code>kid</code></td>
+      <td><span class="label label-success">required</span></td>
+      <td>The identifier of the key-pair used to sign this JWT. This identifier MUST
+          be unique within the backend services's JWK Set.</td>
+    </tr>
+    <tr>
+      <td><code>typ</code></td>
+      <td><span class="label label-success">required</span></td>
+      <td>Fixed value: <code>JWT</code>.</td>
+    </tr>
+    <tr>
+      <td><code>jku</code></td>
+      <td><span class="label label-info">optional</span></td>
+      <td>The URL to the JWK Set containing the public key(s). When present,
+      this should match a value that the backend service supplied to the EHR at
+      client registration time.</td>
+    </tr>
+  </tbody>
+</table>
+
 
 <table class="table">
   <thead>
@@ -173,14 +227,26 @@ The access token response is a JSON object, with the following properties:
 
 ## Server Obligations ##
 
-<span class="label label-warning">TODO</span>
+
+## Verification algorithm
 
 Servers SHALL
 * validate the signature on the JWT
-* check that the JWT `exp` is valid
-* check that the JWT `aud` matches the server's OAuth token URL (the URL to which the token was `POST`ed)
+* check that the JWT `exp` claim is valid
+* check that the JWT `aud` claim matches the server's OAuth token URL (the URL to which the token was `POST`ed)
 * check that this is not a `jti` value previously encountered for the given `sub` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
-* ensure that the `client_id` provided is known and associated with the supplied `iss`
+* ensure that the `client_id` provided is known matches the JWT's `iss` claim
+
+To resolve a key to verify signatures, a server follows this algorithm:
+1. If `jku` header is present, verify that the `jku` is whitelisted (i.e., that it 
+matches the value supplied at registration time for the specified `client_id`).
+a. If the `jku` header  is whitelisted, the signature verification fails.
+b If the `jku` header whitelisted, create a set of potential keys by dereferencing the `jku` URL. Proceed to step 3.
+2. If `jku` is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI + any keys supplied in the registration-time JWKS. Proceed to step 3.
+3. Filter the potential keys to exclude any where the `alg` and `kid` do not match the values supplied in the client's JWK header.
+4. Attempt to verify the JWK using each key remaining in the potential keys list.
+a. If any attempt succeeds, the signature verification succeeds.
+b. if all attempts fail, the signature verification fails.
 
 ## Scopes
 
