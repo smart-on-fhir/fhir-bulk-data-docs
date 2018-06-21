@@ -241,15 +241,15 @@ Servers SHALL
 To resolve a key to verify signatures, a server follows this algorithm:
 
 <ol>
-  <li>If `jku` header is present, verify that the `jku` is whitelisted (i.e., that it 
+  <li>If the <code>jku</code> header is present, verify that the <code>jku</code> is whitelisted (i.e., that it 
 matches the value supplied at registration time for the specified `client_id`).
     <ol type="a">
-      <li>If the `jku` header is not whitelisted, the signature verification fails.</li>
-      <li>If the `jku` header is whitelisted, create a set of potential keys by dereferencing the `jku` URL. Proceed to step 3.</li>
+      <li>If the <code>jku</code> header is not whitelisted, the signature verification fails.</li>
+      <li>If the <code>jku</code> header is whitelisted, create a set of potential keys by dereferencing the <code>jku</code> URL. Proceed to step 3.</li>
     </ol>
   </li>
-  <li> If `jku` is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI + any keys supplied in the registration-time JWKS. Proceed to step 3.</li>
-  <li> Filter the potential keys to exclude any where the `alg` and `kid` do not match the values supplied in the client's JWK header.</li>
+  <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI + any keys supplied in the registration-time JWKS. Proceed to step 3.</li>
+  <li> Filter the potential keys to exclude any where the <code>alg</code> and <code>kid</code> do not match the values supplied in the client's JWK header.</li>
   <li> Attempt to verify the JWK using each key remaining in the potential keys list.
     <ol type="a">
       <li> If any attempt succeeds, the signature verification succeeds.</li>
