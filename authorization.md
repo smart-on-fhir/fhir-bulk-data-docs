@@ -249,8 +249,8 @@ matches the value supplied at registration time for the specified `client_id`).
     </ol>
   </li>
   <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI + any keys supplied in the registration-time JWKS. Proceed to step 3.</li>
-  <li> Filter the potential keys to exclude any where the <code>alg</code> and <code>kid</code> do not match the values supplied in the client's JWK header.</li>
-  <li> Attempt to verify the JWK using each key remaining in the potential keys list.
+  <li> Filter the potential keys to retain only those where the <code>alg</code> and <code>kid</code> match the values supplied in the client's JWK header.</li>
+  <li> Attempt to verify the JWK using each key in the potential keys list.
     <ol type="a">
       <li> If any attempt succeeds, the signature verification succeeds.</li>
       <li> If all attempts fail, the signature verification fails.</li>
