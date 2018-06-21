@@ -1,5 +1,6 @@
 # SMART Backend Services: Authorization Guide
 
+  
 ## Profile audience and scope
 
 This profile is intended to be used by developers of back-end services that
@@ -239,15 +240,24 @@ Servers SHALL
 
 To resolve a key to verify signatures, a server follows this algorithm:
 
-1. If `jku` header is present, verify that the `jku` is whitelisted (i.e., that it 
+<ol>
+  <li>If `jku` header is present, verify that the `jku` is whitelisted (i.e., that it 
 matches the value supplied at registration time for the specified `client_id`).
- a. If the `jku` header is not whitelisted, the signature verification fails.
- b. If the `jku` header is whitelisted, create a set of potential keys by dereferencing the `jku` URL. Proceed to step 3.
-2. If `jku` is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI + any keys supplied in the registration-time JWKS. Proceed to step 3.
-3. Filter the potential keys to exclude any where the `alg` and `kid` do not match the values supplied in the client's JWK header.
-4. Attempt to verify the JWK using each key remaining in the potential keys list.
- a. If any attempt succeeds, the signature verification succeeds.
- b. if all attempts fail, the signature verification fails.
+    <ol type="a">
+      <li>If the `jku` header is not whitelisted, the signature verification fails.</li>
+      <li>If the `jku` header is whitelisted, create a set of potential keys by dereferencing the `jku` URL. Proceed to step 3.</li>
+    </ol>
+  </li>
+  <li> If `jku` is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI + any keys supplied in the registration-time JWKS. Proceed to step 3.</li>
+  <li> Filter the potential keys to exclude any where the `alg` and `kid` do not match the values supplied in the client's JWK header.</li>
+  <li> Attempt to verify the JWK using each key remaining in the potential keys list.
+    <ol type="a">
+      <li> If any attempt succeeds, the signature verification succeeds.</li>
+      <li> If all attempts fail, the signature verification fails.</li>
+    </ol>
+  </li>
+</ol>
+ 
 
 ## Scopes
 
