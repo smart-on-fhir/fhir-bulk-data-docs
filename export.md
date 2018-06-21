@@ -92,7 +92,7 @@ After a bulk data request has been kicked-off, clients can send a delete request
 
 After a bulk data request has been kicked-off, clients can poll the url provided in the ```Content-Location``` header to obtain the status of the request. 
 
-Note: Clients should follow the an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests.
+Note: Clients should follow an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests.
 
 Note: The ```Accept``` header for this request should be ```application/json```. In the case that errors prevent the export from completing, the response will a JSON-encoded FHIR OperationOutcome resource. 
 
