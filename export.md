@@ -43,7 +43,7 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 
 - ```_outputFormat``` (string, optional, defaults to ```application/fhir+ndjson```)
 
-  The format for the generated bulk data files. Currently, only [ndjson](http://ndjson.org/) is supported. Servers should support the full content type of ```application/fhir+ndjson``` as well as abbreviated representations including ```application/ndjson``` and ```ndjson```.
+  The format for the generated bulk data files. Currently, [ndjson](http://ndjson.org/) must be supported, though servers may choose to also support other output formats. Servers should support the full content type of ```application/fhir+ndjson``` as well as abbreviated representations including ```application/ndjson``` and ```ndjson```.
 
 - ```_since``` (FHIR instant type, optional)  
 
