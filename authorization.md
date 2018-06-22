@@ -182,6 +182,8 @@ Servers SHALL
 * check that this is not a `jti` value previously encountered for the given `sub` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
 * ensure that the `client_id` provided is known and associated with the supplied `iss`
 
+If an error is encountered during the authorization process, servers SHALL respond with errors as defined by the [OAuth 2 specification](https://tools.ietf.org/html/rfc6749#section-5.2). Servers SHOULD also include an error_uri and error_description as defined by OAuth 2.
+
 ## Scopes
 
 As there is no user or launch context when performing backed services authorization, 
