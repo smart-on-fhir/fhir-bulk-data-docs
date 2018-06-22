@@ -39,7 +39,7 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 
   Specifies whether the response is immediate or asynchronous. Currently must be set to ```respond-async```.
 
-#### Query String Parameters
+#### Query Parameters
 
 - ```_outputFormat``` (string, optional, defaults to ```application/fhir+ndjson```)
 
@@ -71,7 +71,7 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 ---
 ### Bulk Data Delete Request:
 
-After a bulk data request has been kicked-off, clients can send a delete request to the url provided in the ```Content-Location``` header to cancel the request.
+After a bulk data request has been started, clients can send a delete request to the url provided in the ```Content-Location``` header to cancel the request.
 
 #### Endpoint 
 
@@ -90,7 +90,7 @@ After a bulk data request has been kicked-off, clients can send a delete request
 ---
 ### Bulk Data Status Request:
 
-After a bulk data request has been kicked-off, clients can poll the url provided in the ```Content-Location``` header to obtain the status of the request. 
+After a bulk data request has been started, clients can poll the url provided in the ```Content-Location``` header to obtain the status of the request. 
 
 Note: Clients should follow an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests.
 
