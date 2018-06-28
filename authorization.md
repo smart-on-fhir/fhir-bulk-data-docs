@@ -30,6 +30,13 @@ registered patients and synchronizes these with an external database
 * A utilization tracking system that queries an EHR every minute for
 bed and room usage and displays statistics on a wall monitor.
 
+
+#### **Use this profile in conjunction with ["Bulk Data: on behalf of"](authorization-on-behalf-of.md)** when any of the following conditions apply:
+
+* The service runs on behalf of a specific end-user
+* The service needs to have its access limited to the resources that a specific end-user is allowed to access
+
+
 ## Registering a SMART Backend Service
 
 Before a SMART backend service can run against an EHR, the service must be
