@@ -65,7 +65,7 @@ To request finer-grained filtering, a client can supply a `_typeFilter` paramete
 
 ###### Example Request with `_typeFilter`
 
-The following is an export request request is for `MedicationRequest` resources and `Condition` resources, where the client would further like to restrict `MedicationRequests` to requests that are `active`, or else `completed` after July 1 2018. This can be accomplished with two subqueries, joined together with a comma for a logical "or":
+The following is an export request for `MedicationRequest` resources and `Condition` resources, where the client would further like to restrict `MedicationRequests` to requests that are `active`, or else `completed` after July 1 2018. This can be accomplished with two subqueries, joined together with a comma for a logical "or":
 
 * `MedicationRequest?status=active`
 * `MedicationRequest?status=completed&date=gt2018-07-01T00:00:00Z`
