@@ -226,17 +226,16 @@ The access token response is a JSON object, with the following properties:
   </tbody>
 </table>
 
-## Server Obligations ##
+## Server Obligations for Signature Verification
 
+Servers SHALL follow all requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
 
-## Verification algorithm
-
-Servers SHALL
+In addition, we require that servers SHALL:
 * validate the signature on the JWT
 * check that the JWT `exp` claim is valid
 * check that the JWT `aud` claim matches the server's OAuth token URL (the URL to which the token was `POST`ed)
 * check that this is not a `jti` value previously encountered for the given `sub` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
-* ensure that the `client_id` provided is known matches the JWT's `iss` claim
+* ensure that the `client_id` provided is known and matches the JWT's `iss` claim
 
 To resolve a key to verify signatures, a server follows this algorithm:
 
