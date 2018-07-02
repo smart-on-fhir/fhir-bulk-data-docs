@@ -61,7 +61,7 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 
 As a community, we've identified use cases for finer-grained, client-specified filtering. For example, some clients may want to retrieve only active prescriptions (rather than historical prescriptions), or only laboratory observations (rather than all observations). We have considered several approaches to finer-grained filtering, including FHIR's `GraphDefinition`, the Clinical Query Language, and FHIR's REST API search parameters. We expect this will be an area of active exploration, so for the time being we're defining an experimental syntax based on search parameters that works side-by-side with our coarse-grained `_type`-based filtering.
 
-To request finer-grained filtering, a client can supply a `_typeFilter` parameter alongside the `_type` parameter. The value of the `_typeFilter` parameter is a comma-separated list of FHIR REST API queries that further restrict the results of the query. Understanding `_typeFilter` is optional for servers; clients should be robust to servers that ignore `_typeFilter`.
+To request finer-grained filtering, a client can supply a `_typeFilter` parameter alongside the `_type` parameter. The value of the `_typeFilter` parameter is a comma-separated list of FHIR REST API queries that further restrict the results of the query. Understanding `_typeFilter` is optional for servers; clients should be robust to servers that ignore `_typeFilter`. To avoid potentially surprising results, `_typeFilter` must not be used in combination with `_since`. (The example below shows how time-based constraints can still be accomplished by pushing them into the `_typeFilter` if needed.)
 
 ###### Example Request with `_typeFilter`
 
