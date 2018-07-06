@@ -95,7 +95,7 @@ Before a backend service can request an access token, it must generate a
 one-time-use JSON Web Token that will be used to authenticate the service to
 the EHR's authorization server. The authentication JWT is constructed with the
 following claims, and then signed with the backend service's private RSA key
-(RSA SHA-256 signature). For a practical reference on JWT, as well as debugging
+(RSA SHA-384 signature). For a practical reference on JWT, as well as debugging
 tools and client libraries, see http://jwt.io.
 
 <table class="table">
@@ -297,15 +297,15 @@ this, the service must first generate a one-time-use authentication JWT with the
 ```
 
 
-##### 2. Generate an RSA SHA-256 signed JWT over these claims
+##### 2. Generate an RSA SHA-384 signed JWT over these claims
 
 Using the service's RSA private key, the signed token value is:
 
 ```
-eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2JpbGktbW9uaXRvcmluZy1zZXJ2aWNlLmNvbS8iLCJzdWIiOiJiaWxpX21vbml0b3IiLCJhdWQiOiJodHRwczovL2F1dGhvcml6ZS5zbWFydHBsYXRmb3Jtcy5vcmcvdG9rZW4iLCJleHAiOjE0MjI1Njg4NjAsImp0aSI6InJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJ9.Psqfs2IEw_1GcGiSZDdEZquS-iA_gVBpNSedAghL4R9FkJWdvReXvkeBFtgBIa2PjRIQQSLYR7p3XtaH3YERivuxOKCg7OCla8dkLrlaNujhfSdwEdvn-f1GTrytjNTJWEHg0jEDeRoZn7zYy7jFZBYmF0xsRwZe7wisyaCob1w
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCJ9.eyJpc3MiOiAiaHR0cHM6Ly9iaWxpLW1vbml0b3Jpbmctc2VydmljZS5leGFtcGxlLmNvbS8iLCAic3ViIjogImJpbGlfbW9uaXRvciIsICJhdWQiOiAiaHR0cHM6Ly9hdXRob3JpemUuc21hcnRoZWFsdGhpdC5vcmcvdG9rZW4iLCAiZXhwIjogMTQyMjU2ODg2MCwgImp0aSI6ICJyYW5kb20tbm9uLXJldXNhYmxlLWp3dC1pZC0xMjMifQ.C07CD0U_jAC3k8RrWRwz99hzyqsAIQ9EO7VD8Evu4Rgqv_Essinf6JaPXytuwEFsc7hPJI-AXyl6T2m7FvVjYS2yw4qBbEYz221w3N-CKZ2ku_IFrC2w3LWm4UVJf6xFud9U5w66tsgEe9WO0bYjpzWAiHuyaOca4WyfFTkW4rY
 ```
 
-(Note: to inspect this example JWT, you can visit http://jwt.io, choose RS256,
+(Note: to inspect this example JWT, you can visit http://jwt.io, choose RS384,
 paste in the provided RSA keys, and then paste the JWT value into the "encoded"
 field.)
 

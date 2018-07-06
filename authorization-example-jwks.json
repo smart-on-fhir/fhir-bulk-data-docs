@@ -1,0 +1,7 @@
+{
+  "iss": "https://bili-monitoring-service.example.com/",
+  "sub": "bili_monitor",
+  "aud": "https://authorize.smarthealthit.org/token",
+  "exp": 1422568860,
+  "jti": "random-non-reusable-jwt-id-123"
+}
