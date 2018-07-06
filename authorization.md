@@ -273,11 +273,11 @@ but associated with the permissions of the authorized client instead of a human 
 Assume that a "bilirubin result monitoring" service has registered with
 the EHR's authorization server, establishing the following
 
- * JWT "issuer" URL: `https://bili-monitoring-service.example.com/`
+ * JWT "issuer" URL: `bili_monitor`
  * OAuth2 `client_id`: `bili_monitor`
- * RSA [public key](example-rsa-key.pub)
+ * RSA [public key](authorization-example-jwks.json)
 
-Separately, the service also maintains its RSA [private key](example-rsa-key.priv).
+Separately, the service also maintains its RSA [private key](authorization-example-jwks-and-signatures.ipynb).
 
 To obtain an access token at runtime, the bilirubin monitoring service wants to
 start monitoring some bilirubin values. It needs to obtain an OAuth2 token with
