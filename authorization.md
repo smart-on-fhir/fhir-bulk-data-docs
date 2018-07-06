@@ -139,12 +139,14 @@ tools and client libraries, see http://jwt.io.
     <tr>
       <td><code>iss</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The service's issuer URI, as registered with the EHR's authorization server</td>
+      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server
+        (note that this is the same as the value for the <code>sub<code> claim)</td>
     </tr>
     <tr>
       <td><code>sub</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server</td>
+      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server
+      (note that this is the same as the value for the <code>iss<code> claim)</td>
     </tr>
     <tr>
       <td><code>aud</code></td>
@@ -234,7 +236,7 @@ In addition, we require that servers SHALL:
 * validate the signature on the JWT
 * check that the JWT `exp` claim is valid
 * check that the JWT `aud` claim matches the server's OAuth token URL (the URL to which the token was `POST`ed)
-* check that this is not a `jti` value previously encountered for the given `sub` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
+* check that this is not a `jti` value previously encountered for the given `iss` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
 * ensure that the `client_id` provided is known and matches the JWT's `iss` claim
 
 To resolve a key to verify signatures, a server follows this algorithm:
@@ -286,7 +288,7 @@ this, the service must first generate a one-time-use authentication JWT with the
 
 ```
 {
-  "iss": "https://bili-monitoring-service.example.com/",
+  "iss": "bili_monitor",
   "sub": "bili_monitor",
   "aud": "https://authorize.smarthealthit.org/token",
   "exp": 1422568860,
