@@ -57,6 +57,36 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 
   Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
 
+##### Experimental Query Parameters
+
+As a community, we've identified use cases for finer-grained, client-specified filtering. For example, some clients may want to retrieve only active prescriptions (rather than historical prescriptions), or only laboratory observations (rather than all observations). We have considered several approaches to finer-grained filtering, including FHIR's `GraphDefinition`, the Clinical Query Language, and FHIR's REST API search parameters. We expect this will be an area of active exploration, so for the time being we're defining an experimental syntax based on search parameters that works side-by-side with our coarse-grained `_type`-based filtering.
+
+To request finer-grained filtering, a client can supply a `_typeFilter` parameter alongside the `_type` parameter. The value of the `_typeFilter` parameter is a comma-separated list of FHIR REST API queries that further restrict the results of the query. Understanding `_typeFilter` is optional for servers; clients should be robust to servers that ignore `_typeFilter`.
+
+*Note for client developers*: Because both `_typeFilter` and `_since` can restrict the results returned, the interaction of these parameters may be surprising. Think carefully through the implications when constructing a query with both of these parameters.
+
+###### Example Request with `_typeFilter`
+
+The following is an export request for `MedicationRequest` resources and `Condition` resources, where the client would further like to restrict `MedicationRequests` to requests that are `active`, or else `completed` after July 1 2018. This can be accomplished with two subqueries, joined together with a comma for a logical "or":
+
+* `MedicationRequest?status=active`
+* `MedicationRequest?status=completed&date=gt2018-07-01T00:00:00Z`
+
+To create a `_typeFilter` parameter, a client should URL encode these two subqueries and join them with `,`.
+Newlines and spaces have been added for clarity, and would not be included in a real request:
+
+```
+$export?
+  _type=
+    MedicationRequest,
+    Condition&
+  _typeFilter=
+    MedicationRequest%3Fstatus%3Dactive,
+    MedicationRequest%3Fstatus%3Dcompleted%26date%3Dgt2018-07-01T00%3A00%3A00Z
+```
+
+Note: the `Condition` resource is included in `_type` but omitted from `_typeFilter` because the client intends to request all `Condition` resources without any filters.
+
 #### Response - Success
 
 - HTTP Status Code of ```202 Accepted``` 
