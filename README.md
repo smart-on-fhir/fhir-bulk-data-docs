@@ -25,7 +25,7 @@ This use case exports all resources needed for the Common Clinical Data Set, as 
 ### Common Financial Data Set
 *Applies to: Financial systems that support FHIR-based interoperability.*
 
-This use case exports all resources needed to convey a patient's healththcare financial history, including `ExplanationOfBenefit`, `Coverage`, and `Claim`. While FHIR profiles are still being developed and standardized, see https://bluebutton.cms.gov/developers/#core-resources for a full-fledged example.
+This use case exports all resources needed to convey a patient's healththcare financial history, including `Patient`,  `ExplanationOfBenefit`, `Coverage`, and `Claim`. While FHIR profiles are still being developed and standardized, see https://bluebutton.cms.gov/developers/#core-resources for a full-fledged example.
 
 ## Resources
  - [Overview Presentation](https://docs.google.com/presentation/d/14ZHmam9hwz6-SsCG1YqUIQnJ56bvSqEatebltgEVR6c/edit?usp=sharing)
