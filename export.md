@@ -96,7 +96,7 @@ Note: the `Condition` resource is included in `_type` but omitted from `_typeFil
 #### Response - Error (eg. unsupported search parameter)
 
 - HTTP Status Code of ```4XX``` or ```5XX```
-- Optionally a FHIR OperationOutcome in the body
+- The body MUST be a FHIR OperationOutcome
 
 If a server wants to prevent a client from beginning a new export before an in-progress export is completed, it should respond with a `429` status and a Retry-After header, following the rate-limiting advice for "Bulk Data Status Request" below.
 
