@@ -253,4 +253,4 @@ Specifies the format of the file being returned. Optional, but currently only ap
 - Added `error`  and `count` properties to copmletion response
 
 #### 6/21/2018 (Draft 0.4.0)
-- Renamed `requiresAccessToken` to `requiresAccessToken`
+- Renamed `requiresAuthorizationToken` to `requiresAccessToken`
