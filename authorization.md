@@ -55,7 +55,7 @@ following techniques:
   
 It is recommended that EHRs should be capable of validating signatures using `RS384` and `ES384`; and that
 backend services be capable of generating signatures using one of these two
-algorithms. Over time, we expect recommended algorithms to evolve, so while
+algorithms. Over time, we expect recommended algorithms to evolve, so
 while this specification recommends algorithms for interoperability, it does
 not mandate any algorithm.
 
