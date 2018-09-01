@@ -96,7 +96,7 @@ Note: the `Condition` resource is included in `_type` but omitted from `_typeFil
 #### Response - Error (eg. unsupported search parameter)
 
 - HTTP Status Code of ```4XX``` or ```5XX```
-- The body MUST be a FHIR OperationOutcome
+- The body MUST be a FHIR OperationOutcome in JSON format
 
 If a server wants to prevent a client from beginning a new export before an in-progress export is completed, it should respond with a `429` status and a Retry-After header, following the rate-limiting advice for "Bulk Data Status Request" below.
 
@@ -117,7 +117,7 @@ After a bulk data request has been started, clients can send a delete request to
 #### Response - Error Status
 
 - HTTP status code of ```4XX``` or ```5XX```
-- Optionally a FHIR OperationOutcome in the body
+- The body MUST be a FHIR OperationOutcome in JSON format
 
 ---
 ### Bulk Data Status Request:
@@ -140,7 +140,7 @@ Note: The ```Accept``` header for this request should be ```application/json```.
 #### Response - Error Status
 
 - HTTP status code of ```5XX```
-- Optionally a JSON FHIR OperationOutcome in the body
+- The body MUST be a FHIR OperationOutcome in JSON format
 - Even if some resources cannot successfully be exported, the overall export operation may still succeed. In this case, the `Response.error` array of the completion Response must be populated (see below) with one or more files in ndjson format containing `OperationOutcome` resources to indicate what went wrong.
 
 #### Response - Complete Status
@@ -254,3 +254,6 @@ Specifies the format of the file being returned. Optional, but currently only ap
 
 #### 6/21/2018 (Draft 0.4.0)
 - Renamed `requiresAccessToken` to `requiresAccessToken`
+
+### 9/1/2018 (Draft 0.4.1)
+- Require OperationOutcome in error conditions
