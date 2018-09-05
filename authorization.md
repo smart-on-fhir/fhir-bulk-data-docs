@@ -249,7 +249,7 @@ matches the value supplied at registration time for the specified `client_id`).
       <li>If the <code>jku</code> header is whitelisted, create a set of potential keys by dereferencing the <code>jku</code> URL. Proceed to step 3.</li>
     </ol>
   </li>
-  <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI + any keys supplied in the registration-time JWKS. Proceed to step 3.</li>
+  <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI (if any) + any keys supplied in the registration-time JWKS (if any). Proceed to step 3.</li>
   <li> Filter the potential keys to retain only those where the <code>alg</code> and <code>kid</code> match the values supplied in the client's JWK header.</li>
   <li> Attempt to verify the JWK using each key in the potential keys list.
     <ol type="a">
