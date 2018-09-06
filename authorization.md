@@ -46,7 +46,7 @@ backend service should communicate its **public key** to the SMART EHR using a
 following techniques:
 
   1. JWKS URL (preferred). This URL communicates the TLS-protected endpoint where the service's
-  JSON Web Key can be found. When provided, this URL will match the `jku` header
+  public JSON Web Keys can be found. When provided, this URL will match the `jku` header
   parameter in the service's Authorization JWTs. An advantage of this approach is that
   it allows a client to rotate its own keys by updating the hosted content at the JWKS URL.
   2. JWKS directly (allowed, not preferred). If a backend service cannot host a JWKS at a
