@@ -12,9 +12,9 @@
   
   https://test.fhir.org/r3
   
-- Cerner (supports v0.1)
+- Cerner (supports v0.2)
   
-  https://fhir-open.stagingcerner.com/stu3/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$everything
+  https://fhir-open.stagingcerner.com/r4/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$export
   
 - ONC (supports v0.1)
   
