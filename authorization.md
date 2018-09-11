@@ -92,7 +92,7 @@ access token:
 #### Protocol details
 
 Before a backend service can request an access token, it must generate a
-one-time-use JSON Web Token that will be used to authenticate the service to
+one-time-use JSON Web Token (JWT) that will be used to authenticate the service to
 the EHR's authorization server. The authentication JWT is constructed with the
 following claims, and then signed with the backend service's private RSA key
 (RSA SHA-384 signature). For a practical reference on JWT, as well as debugging
