@@ -277,9 +277,9 @@ the EHR's authorization server, establishing the following
 
  * JWT "issuer" URL: `bili_monitor`
  * OAuth2 `client_id`: `bili_monitor`
- * RSA [public key](authorization-example-jwks.json)
+ * RSA [public key](examples/RS384.public.json)
 
-Separately, the service also maintains its RSA [private key](authorization-example-jwks-and-signatures.ipynb).
+Separately, the service also maintains its RSA [private key](example/authorization-example-jwks-and-signatures.ipynb).
 
 To obtain an access token at runtime, the bilirubin monitoring service wants to
 start monitoring some bilirubin values. It needs to obtain an OAuth2 token with
