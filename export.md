@@ -122,7 +122,7 @@ After a bulk data request has been started, clients can send a delete request to
 ---
 ### Bulk Data Status Request:
 
-After a bulk data request has been started, clients can poll the url provided in the ```Content-Location``` header, using any access token valid at the server's [fhir base], to obtain the status of the request. 
+After a bulk data request has been started, clients can poll the url provided in the ```Content-Location``` header, using any access token valid at the initial `$export` endpoint, to obtain the status of the request. 
 
 Note: Clients should follow an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests. If a client is polling too frequently, the server should respond with a `429` status code in addition to a Retry-After header, and optionally an OperationOutcome with further explanation.
 
