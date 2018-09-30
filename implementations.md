@@ -14,7 +14,14 @@
   
 - Cerner (supports v0.2)
   
-  https://fhir-open.stagingcerner.com/r4/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$export
+  https://fhir-open.stagingcerner.com/r4/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$export (open)
+
+  https://fhir-ehr.stagingcerner.com/r4/a758f80e-aa74-4118-80aa-98cc75846c76/token (authorization)
+  - client ids
+    - sample_jwks_es384 (if using ES384 [Sample JWKs](sample-jwks))
+    - sample_jwks_rs384 (if using RS384 [Sample JWKs](sample-jwks))
+
+  https://fhir-ehr.stagingcerner.com/r4/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$export (secure)
   
 - ONC (supports v0.1)
   
