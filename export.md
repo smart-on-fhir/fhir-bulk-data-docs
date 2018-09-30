@@ -55,7 +55,7 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 
   Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all supported resources that the client has authorization to access and that the relevant business agreements allow. The [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) should act as a point of reference for recommended resources to be returned as well as other resources outside of the patient compartment that are helpful in interpreting the patient data such as Organization and Practitioner.
   
-  Resource references should be relative uris with the format `<resource type>/<id>`, or absolute uris with the same structure rooted in the base url for the server from which the export was performed. References will be resolved lookiing for a resource with the specified type and id within the file set.
+  Resource references should be relative uris with the format `<resource type>/<id>`, or absolute uris with the same structure rooted in the base url for the server from which the export was performed. References will be resolved looking for a resource with the specified type and id within the file set.
 
   Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
 
