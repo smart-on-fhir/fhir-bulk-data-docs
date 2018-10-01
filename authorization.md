@@ -83,7 +83,7 @@ five minutes*.
 To obtain an access token, the service uses an OAuth 2.0 client credentials
 flow, with a [JWT
 assertion](https://tools.ietf.org/html/rfc7523) as its
-client authenticaiton mechanism. The exchange, depicted below, allows the
+client authentication mechanism. The exchange, depicted below, allows the
 backend service to authenticate to the EHR and request a short-lived
 access token:
 
@@ -96,7 +96,7 @@ one-time-use JSON Web Token (JWT) that will be used to authenticate the service 
 the EHR's authorization server. The authentication JWT is constructed with the
 following claims, and then signed with the backend service's private RSA key
 (RSA SHA-384 signature). For a practical reference on JWT, as well as debugging
-tools and client libraries, see http://jwt.io.
+tools and client libraries, see https://jwt.io.
 
 <table class="table">
   <thead>
@@ -307,7 +307,7 @@ Using the service's RSA private key, the signed token value is:
 eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCJ9.eyJpc3MiOiAiaHR0cHM6Ly9iaWxpLW1vbml0b3Jpbmctc2VydmljZS5leGFtcGxlLmNvbS8iLCAic3ViIjogImJpbGlfbW9uaXRvciIsICJhdWQiOiAiaHR0cHM6Ly9hdXRob3JpemUuc21hcnRoZWFsdGhpdC5vcmcvdG9rZW4iLCAiZXhwIjogMTQyMjU2ODg2MCwgImp0aSI6ICJyYW5kb20tbm9uLXJldXNhYmxlLWp3dC1pZC0xMjMifQ.C07CD0U_jAC3k8RrWRwz99hzyqsAIQ9EO7VD8Evu4Rgqv_Essinf6JaPXytuwEFsc7hPJI-AXyl6T2m7FvVjYS2yw4qBbEYz221w3N-CKZ2ku_IFrC2w3LWm4UVJf6xFud9U5w66tsgEe9WO0bYjpzWAiHuyaOca4WyfFTkW4rY
 ```
 
-(Note: to inspect this example JWT, you can visit http://jwt.io, choose RS384,
+(Note: to inspect this example JWT, you can visit https://jwt.io, choose RS384,
 paste in the provided RSA keys, and then paste the JWT value into the "encoded"
 field.)
 
