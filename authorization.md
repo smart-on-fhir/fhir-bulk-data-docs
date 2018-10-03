@@ -60,12 +60,11 @@ while this specification recommends algorithms for interoperability, it does
 not mandate any algorithm.
 
 No matter how a JWKS is communicated to the EHR, each key in the JWKS *must be* an asymmetric
-key whose content is conveyed using "bare key" properties (i.e., direct base64 encoding of 
+key that includes `kty` and `kid` properties, and whose content is conveyed using "bare key" properties (i.e., direct base64 encoding of 
 key material as integer values). This means that:
 
 * For RSA public keys, each MUST include `n` and `e` values (modulus and exponent) 
 * For ECDSA public keys, each MUST include `crv`, `x`, and `y` values (curve, x-coordinate, and y-coordinate, for EC keys) 
-
 
 Upon registration, the server assigns a `client_id`, which  the client uses when
 obtaining an access token.
