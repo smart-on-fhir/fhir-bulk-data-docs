@@ -104,10 +104,9 @@ tools and client libraries, see https://jwt.io.
   </thead>
   <tbody>
     <tr>
-      <td><code>alg</code></td>
+      <td><code>kty</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The algorithm used for signing the authentication JWT (e.g., `RS384`, `EC384`).
-      </td>
+      <td>The type of key used for signing the authentication JWT (e.g., <code>RSA</code>, <code>EC</code>).</td>
     </tr>
     <tr>
       <td><code>kid</code></td>
@@ -126,6 +125,11 @@ tools and client libraries, see https://jwt.io.
       <td>The URL to the JWK Set containing the public key(s). When present,
       this should match a value that the backend service supplied to the EHR at
       client registration time.</td>
+    </tr>
+    <tr>
+      <td><code>alg</code></td>
+      <td><span class="label label-info">optional</span></td>
+      <td>The algorithm used for signing the authentication JWT (e.g., <code>RS384</code>, <code>EC384</code>).</td>
     </tr>
   </tbody>
 </table>
