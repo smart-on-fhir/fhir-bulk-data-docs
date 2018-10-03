@@ -249,7 +249,7 @@ matches the value supplied at registration time for the specified `client_id`).
     </ol>
   </li>
   <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI (if any) + any keys supplied in the registration-time JWKS (if any). Proceed to step 3.</li>
-  <li> Filter the potential keys to retain only those where the <code>kty</code> and <code>kid</code> match the values supplied in the client's JWK header.</li>
+  <li> Filter the potential keys to retain only those where the <code>kid</code> matches the value supplied in the client's JWK header, and the <code>kty</code> is consistent with the signature algorithm used for the JWT (e.g., <code>RSA</code> for a JWT using an RSA-based signature, or <code>EC</code> for a JWT using an EC-based signature).</li>
   <li> Attempt to verify the JWK using each key in the potential keys list.
     <ol type="a">
       <li> If any attempt succeeds, the signature verification succeeds.</li>
