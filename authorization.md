@@ -60,12 +60,11 @@ while this specification recommends algorithms for interoperability, it does
 not mandate any algorithm.
 
 No matter how a JWKS is communicated to the EHR, each key in the JWKS *must be* an asymmetric
-key whose content is conveyed using "bare key" properties (i.e., direct base64 encoding of 
+key that includes `kty` and `kid` properties, and whose content is conveyed using "bare key" properties (i.e., direct base64 encoding of 
 key material as integer values). This means that:
 
 * For RSA public keys, each MUST include `n` and `e` values (modulus and exponent) 
 * For ECDSA public keys, each MUST include `crv`, `x`, and `y` values (curve, x-coordinate, and y-coordinate, for EC keys) 
-
 
 Upon registration, the server assigns a `client_id`, which  the client uses when
 obtaining an access token.
@@ -104,9 +103,10 @@ tools and client libraries, see https://jwt.io.
   </thead>
   <tbody>
     <tr>
-      <td><code>kty</code></td>
+      <td><code>alg</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The type of key used for signing the authentication JWT (e.g., <code>RSA</code>, <code>EC</code>).</td>
+      <td>The algorithm used for signing the authentication JWT (e.g., `RS384`, `EC384`).
+      </td>
     </tr>
     <tr>
       <td><code>kid</code></td>
@@ -125,11 +125,6 @@ tools and client libraries, see https://jwt.io.
       <td>The URL to the JWK Set containing the public key(s). When present,
       this should match a value that the backend service supplied to the EHR at
       client registration time.</td>
-    </tr>
-    <tr>
-      <td><code>alg</code></td>
-      <td><span class="label label-info">optional</span></td>
-      <td>The algorithm used for signing the authentication JWT (e.g., <code>RS384</code>, <code>EC384</code>).</td>
     </tr>
   </tbody>
 </table>
@@ -254,7 +249,7 @@ matches the value supplied at registration time for the specified `client_id`).
     </ol>
   </li>
   <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI (if any) + any keys supplied in the registration-time JWKS (if any). Proceed to step 3.</li>
-  <li> Filter the potential keys to retain only those where the <code>kty</code> and <code>kid</code> match the values supplied in the client's JWK header.</li>
+  <li> Filter the potential keys to retain only those where the <code>kid</code> matches the value supplied in the client's JWK header, and the <code>kty</code> is consistent with the signature algorithm used for the JWT (e.g., <code>RSA</code> for a JWT using an RSA-based signature, or <code>EC</code> for a JWT using an EC-based signature).</li>
   <li> Attempt to verify the JWK using each key in the potential keys list.
     <ol type="a">
       <li> If any attempt succeeds, the signature verification succeeds.</li>
