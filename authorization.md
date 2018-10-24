@@ -33,40 +33,60 @@ bed and room usage and displays statistics on a wall monitor.
 
 ## Registering a SMART Backend Service (communicating public keys)
 
-Before a SMART backend service can run against an EHR, the service must be
-registered with that EHR's authorization service.  SMART does not specify a
+Before a SMART backend service can run against an EHR, the service SHALL
+obtain a client-to-client digital certificate and SHALL
+register with that EHR's authorization service.  SMART does not specify a
 standards-based registration process, but we encourage EHR implementers to
-consider the [OAuth 2.0 Dynamic Client Registration
-Protocol](https://tools.ietf.org/html/draft-ietf-oauth-dyn-reg) for an
-out-of-the-box solution.
+consider using the [OAuth 2.0 Dynamic Client Registration
+Protocol](https://tools.ietf.org/html/draft-ietf-oauth-dyn-reg).
 
-No matter how a backend service registers with an EHR's authorization service, a 
-backend service should communicate its **public key** to the SMART EHR using a
-[JSON Web Key Set (JWKS)](https://tools.ietf.org/html/rfc7517) by one of the
-following techniques:
+No matter how a backend service registers with an EHR's authorization service, the 
+backend service SHALL register its **client_id** and the **public key** the
+client will use to authenticate itself to the SMART EHR.  The public key SHALL
+be conveyed to the EHR in a JSON Web Key (JWK) structure presented within
+a JWK Set, as defined in 
+[JSON Web Key Set (JWKS)](https://tools.ietf.org/html/rfc7517).  The client SHALL 
+protect the associated private key from unauthorized disclosure
+and corruption. 
 
-  1. JWKS URL (preferred). This URL communicates the TLS-protected endpoint where the service's
-  public JSON Web Keys can be found. When provided, this URL will match the `jku` header
-  parameter in the service's Authorization JWTs. An advantage of this approach is that
-  it allows a client to rotate its own keys by updating the hosted content at the JWKS URL.
-  2. JWKS directly (allowed, not preferred). If a backend service cannot host a JWKS at a
-  TLS-protected URL, it may supply a JWKS directly to the EHR at registration time. A limitation
-  of this approach is that it does not enable the client to rotate its keys in-band.
+For consistency in implementation, the backend service's JWK SHALL be shared with the
+EHR using one of the following techniques:
+
+  1. URL to JWK Set (strongly preferred). This URL communicates the TLS-protected 
+  endpoint where the service's public JWK Set can be found. When provided, this URL 
+  SHALL match the `jku` header parameter in the service's Authorization JWT. Advantages 
+  of this approach are that
+  it allows a client to rotate its own keys by updating the hosted content at the 
+  JWK Set URL, assures that the public key used by the EHR is current, and avoids the 
+  need for the EHR to maintain and protect the JWK Set.
   
-It is recommended that EHRs should be capable of validating signatures using `RS384` and `ES384`; and that
-backend services be capable of generating signatures using one of these two
-algorithms. Over time, we expect recommended algorithms to evolve, so
-while this specification recommends algorithms for interoperability, it does
-not mandate any algorithm.
+  2. JWK Set directly (strongly discouraged). If a backend service cannot host the JWK 
+  Set at a TLS-protected URL, it MAY supply the JWK Set directly to the EHR at 
+  registration time.  In this case, the EHR SHALL protect the JWK Set from corruption,
+  and SHOULD remind the client to send an update whenever the key set changes.  Conveying
+  the JWK Set directly carries the limitation that it does not enable the client to 
+  rotate its keys in-band.  Incuding both the current and successo keys within the JWK Set
+  helps counter this limitation.  However, this approach places increased responsibility 
+  on the EHR for protecting the integrity of the key(s) over time, and denies the EHR the 
+  opportunity to validate the currency and integrity of the key at the time it is used.  
+  
+The backend service SHALL be capable of generating a JSON Web Signature in accordance
+with [RFC7515](https://tools.ietf.org/html/rfc7515), using JSON Web Algorithm (JWA) 
+header parameter values `RS384` and `ES384` as defined in [RFC7518](https://tools.ietf.org/html/rfc7518).  
+The EHR SHALL be capable of validating such signatures. Over time, 
+we expect recommended algorithms to evolve, so while this specification recommends algorithms 
+for interoperability, it does not mandate the use of any specific algorithm.
 
-No matter how a JWKS is communicated to the EHR, each key in the JWKS *must be* an asymmetric
-key that includes `kty` and `kid` properties, and whose content is conveyed using "bare key" properties (i.e., direct base64 encoding of 
-key material as integer values). This means that:
+No matter how a JWK Set is communicated to the EHR, each JWK SHALL represent an 
+asymmetric key by including `kty` and `kid` properties, with content conveyed using 
+"bare key" properties (i.e., direct base64 encoding of key material as integer values). 
+This means that:
 
-* For RSA public keys, each MUST include `n` and `e` values (modulus and exponent) 
-* For ECDSA public keys, each MUST include `crv`, `x`, and `y` values (curve, x-coordinate, and y-coordinate, for EC keys) 
+* For RSA public keys, each JWK SHALL include `n` and `e` values (modulus and exponent) 
+* For ECDSA public keys, each JWK SHALL include `crv`, `x`, and `y` values (curve, 
+x-coordinate, and y-coordinate, for EC keys) 
 
-Upon registration, the server assigns a `client_id`, which  the client uses when
+Upon registration, the server SHALL assign a `client_id`, which  the client SHALL use when
 obtaining an access token.
 
 ## Obtaining an access token
