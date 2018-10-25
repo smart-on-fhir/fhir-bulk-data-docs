@@ -69,32 +69,46 @@ key material as integer values). This means that:
 Upon registration, the server assigns a `client_id`, which  the client uses when
 obtaining an access token.
 
-## Obtaining an access token
+## Obtaining an Access Token
 
 By the time a backend service has been registered with the EHR, the key
-elements of organizational trust are already established. That is, the app is
-considered "pre-authorized" to access clinical data. Then, at runtime, the
-backend service must obtain an access token in order to work with clinical
-data. Such access tokens can be issued automatically, without need for human
-intervention, and they are short-lived, with a *recommended expiration time of
-five minutes*.
+elements of organizational trust will have been established. That is, the 
+backend service will be considered "pre-authorized" to access clinical data. 
+Then, at runtime, the backend service will need to obtain an access token in 
+order to retrieve clinical data as pre-authorized. Such access tokens are 
+issued by the EHR's authorization server, in accordance with the [OAuth 2.0
+Authorization Framework, RFC6749](https://tools.ietf.org/html/rfc6749).  
 
-To obtain an access token, the service uses an OAuth 2.0 client credentials
-flow, with a [JWT
-assertion](https://tools.ietf.org/html/rfc7523) as its
-client authentication mechanism. The exchange, depicted below, allows the
-backend service to authenticate to the EHR and request a short-lived
-access token:
+Because the authorization scope is limited to protected resources previously 
+arranged with the authorization server, the client credentials grant flow,
+as defined in [Section 4.4 of RFC6749](https://tools.ietf.org/html/rfc6749#page-40), 
+is used to request authorization.  Use of the client credentials grant type
+requires that the client SHALL be a "confidential" client capable of 
+protecting its authentication credential.  
+
+This specification describes requirements for requesting an access token
+through the use of an OAuth 2.0 client credentials flow, with a [JWT
+assertion](https://tools.ietf.org/html/rfc7523) as the 
+client's authentication mechanism. The exchange, as depicted below, allows the
+backend service to authenticate itself to the EHR and to request a short-lived
+access token in a single exchange.
+
+To begin the exchange, the backend service SHALL use the [Transport Layer Security
+(TLS) Protocol Version 1.2 (RFC5246)](https://tools.ietf.org/html/rfc5246) to 
+authenticate the identity of the EHR and to establish an encrypted, 
+integrity-protected link for securing all exchanges between the backend service 
+and the EHR's token endpoint.  All exchanges described herein between the backend
+service and the EHR SHALL be secured using TLS V1.2.
 
 <img class="sequence-diagram-raw"  src="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQmFja2VuZCBTZXJ2aWNlIEF1dGhvcml6YXRpb24KCm5vdGUgb3ZlciBBcHA6ICBDcmVhdGUgYW5kIHNpZ24gYXV0aGVudGljACsFIEpXVCBcbntcbiAgImlzcyI6ICJhcHBfY2xpZW50X2lkIiwAFgVzdWIAAxhleHAiOiAxNDIyNTY4ODYwLCAASAVhdWQiOiAiaHR0cHM6Ly97dG9rZW4gdXJsfQBNBiAianRpIjogInJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJcbn0gLS0-AIE3BndpdGggYXBwJ3MgcHJpdmF0ZSBrZXkgKFJTMzg0KQCBbBBzY29wZT1zeXN0ZW0vKi5yZWFkJlxuZ3JhbnRfdHlwZT0AgV8HY3JlZGVudGlhbHMmXG4AgXQHYXNzZXJ0aW9uACUGdXJuOmlldGY6cGFyYW1zOm9hdXRoOgCCIQYtACMJLXR5cGU6and0LWJlYXJlcgA8Ez17c2lnbmVkAIJ1FGZyb20gYWJvdmV9CgpBcHAtPkVIUgCDXAUAg2kFZXI6ICBQT1NUIACCQxNcbihTYW1lIFVSTCBhcwCCegYARgYpAIQJDABAEUlzc3VlIG5ldyAAgx0FOgCECAUiYWNjZXNzXwCDMAUiOiAic2VjcmV0LQCDQAUteHl6IixcbiJleHBpcmVzX2luIjogOTAwLFxuLi4uXG59CgCBKA8tPgCFBwVbAFAGAGMGIHJlc3BvbnNlXQ&s=default"/>
 
 #### Protocol details
 
-Before a backend service can request an access token, it must generate a
+Before a backend service can request an access token, it SHALL generate a
 one-time-use JSON Web Token (JWT) that will be used to authenticate the service to
-the EHR's authorization server. The authentication JWT is constructed with the
-following claims, and then signed with the backend service's private RSA key
-(RSA SHA-384 signature). For a practical reference on JWT, as well as debugging
+the EHR's authorization server. The authentication JWT SHALL include the
+following claims, and SHALL be signed with the backend service's private RS-384 
+or EC384 signature. For a practical reference on JWT, as well as debugging
 tools and client libraries, see https://jwt.io.
 
 <table class="table">
@@ -105,13 +119,13 @@ tools and client libraries, see https://jwt.io.
     <tr>
       <td><code>alg</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The algorithm used for signing the authentication JWT (e.g., `RS384`, `EC384`).
+      <td>The JWA algorithm (e.g., `RS384`, `EC384`) used for signing the authentication JWT.
       </td>
     </tr>
     <tr>
       <td><code>kid</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The identifier of the key-pair used to sign this JWT. This identifier MUST
+      <td>The identifier of the key-pair used to sign this JWT. This identifier SHALL
           be unique within the backend services's JWK Set.</td>
     </tr>
     <tr>
@@ -124,7 +138,8 @@ tools and client libraries, see https://jwt.io.
       <td><span class="label label-info">optional</span></td>
       <td>The URL to the JWK Set containing the public key(s). When present,
       this should match a value that the backend service supplied to the EHR at
-      client registration time.</td>
+      client registration time.  (When absent, the EHR SHOULD fall back on the JWK
+      Set URL or the JWK Set supplied at registration time.</td>
     </tr>
   </tbody>
 </table>
@@ -138,7 +153,7 @@ tools and client libraries, see https://jwt.io.
     <tr>
       <td><code>iss</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server
+      <td>Issuer of the JWT -- the service's <code>client_id</code>, as determined during registration with the EHR's authorization server
         (note that this is the same as the value for the <code>sub<code> claim)</td>
     </tr>
     <tr>
@@ -155,7 +170,7 @@ tools and client libraries, see https://jwt.io.
     <tr>
       <td><code>exp</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>Expiration time integer for this authentication JWT, expressed in seconds since the "Epoch" (1970-01-01T00:00:00Z UTC). This time MUST be no more than five minutes in the future.</td>
+      <td>Expiration time integer for this authentication JWT, expressed in seconds since the "Epoch" (1970-01-01T00:00:00Z UTC). This time SHALL be no more than five minutes in the future.</td>
     </tr>
     <tr>
       <td><code>jti</code></td>
@@ -193,36 +208,6 @@ content-type `application/x-www-form-urlencoded` with the following parameters:
       <td><code>client_assertion</code></td>
       <td><span class="label label-success">required</span></td>
       <td>Signed authentication JWT value (see above)</td>
-    </tr>
-  </tbody>
-</table>
-
-The access token response is a JSON object, with the following properties:
-
-<table class="table">
-  <thead>
-    <th colspan="3">Access token response: property names</th>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>access_token</code></td>
-      <td><span class="label label-success">required</span></td>
-      <td>The access token issued by the authorization server.</td>
-    </tr>
-    <tr>
-      <td><code>token_type</code></td>
-      <td><span class="label label-success">required</span></td>
-      <td>Fixed value: <code>bearer</code>.</td>
-    </tr>
-    <tr>
-      <td><code>expires_in</code></td>
-      <td><span class="label label-success">required</span></td>
-      <td>The lifetime in seconds of the access token. The recommended value is <code>300</code>, for a five-minute token lifetime.</td>
-    </tr>
-    <tr>
-      <td><code>scope</code></td>
-      <td><span class="label label-success">required</span></td>
-      <td>Scope of access authorized. Note that this can be different from the scopes requested by the app.</td>
     </tr>
   </tbody>
 </table>
