@@ -263,11 +263,13 @@ If an error is encountered during the authorization process, servers SHALL respo
 
 ## Scopes
 
-As there is no user or launch context when performing backed services authorization, 
-the existing SMART on FHIR scopes are not appropriate. Instead, applications use 
-system scopes, which have the format `system/(:resourceType|*).(read|write|*)`. These have
-the same meanings as their matching `user/(:resourceType|*).(read|write|*)` scopes,
-but associated with the permissions of the authorized client instead of a human end-user.
+As backend services authorization involves no user or launch context, 
+the existing SMART on FHIR scopes are not appropriate. Instead, applications SHALL use 
+"system" scopes that parallel SMART "user" scopes.  System scopes have the format 
+`system/(:resourceType|*).(read|write|*)`-- which conveys
+the same access scope as the matching user format `user/(:resourceType|*).(read|write|*)`.
+However, system scopes are associated with permissions assigned to an authorized 
+software client rather than to a human end-user.
 
 ## Worked example
 
@@ -276,14 +278,14 @@ the EHR's authorization server, establishing the following
 
  * JWT "issuer" URL: `bili_monitor`
  * OAuth2 `client_id`: `bili_monitor`
- * RSA [public key](sample-jwks/RS384.public.json)
+ * JWK identfier: `kid` value (see [example JWK](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/sample-jwks/RS384.public.json))
 
-Separately, the service also maintains its RSA [private key](sample-jwks/authorization-example-jwks-and-signatures.ipynb).
+The service protects its private key from unauthorized access, use, and modification.  
 
-To obtain an access token at runtime, the bilirubin monitoring service wants to
-start monitoring some bilirubin values. It needs to obtain an OAuth2 token with
-the scopes `system/*.read system/CommunicationRequest.write`. To accomplish
-this, the service must first generate a one-time-use authentication JWT with the following claims:
+At runtime, when the bilirubin monitoring service wants to
+start monitoring some bilirubin values, it needs to obtain an OAuth 2.0 access 
+token with the scopes `system/*.read` and `system/CommunicationRequest.write`. To accomplish
+this (see [example](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/sample-jwks/authorization-example-jwks-and-signatures.ipynb)), the service must first generate a one-time-use authentication JWT with the following claims:
 
 ##### 1. Generate a JWT to use for client authentication:
 
@@ -298,16 +300,21 @@ this, the service must first generate a one-time-use authentication JWT with the
 ```
 
 
-##### 2. Generate an RSA SHA-384 signed JWT over these claims
+##### 2. Digitally sign the claims, as specified in RFC7515.  
 
-Using the service's RSA private key, the signed token value is:
+Using the service's RSA private key, with SHA-384 hashing (as specified for 
+an `RS384` algorithm (`alg`) parameter value in RFC7518), the signed token 
+value is:
 
 ```
 eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCIsImtpZCI6ImVlZTlmMTdhM2I1OThmZDg2NDE3YTk4MGI1OTFmYmU2In0.eyJpc3MiOiJiaWxpX21vbml0b3IiLCJzdWIiOiJiaWxpX21vbml0b3IiLCJhdWQiOiJodHRwczovL2F1dGhvcml6ZS5zbWFydGhlYWx0aGl0Lm9yZy90b2tlbiIsImV4cCI6MTQyMjU2ODg2MCwianRpIjoicmFuZG9tLW5vbi1yZXVzYWJsZS1qd3QtaWQtMTIzIn0.l2E3-ThahEzJ_gaAK8sosc9uk1uhsISmJfwQOtooEcgUiqkdMFdAUE7sr8uJN0fTmTP9TUxssFEAQnCOF8QjkMXngEruIL190YVlwukGgv1wazsi_ptI9euWAf2AjOXaPFm6t629vzdznzVu08EWglG70l41697AXnFK8GUWSBf_8WHrcmFwLD_EpO_BWMoEIGDOOLGjYzOB_eN6abpUo4GCB9gX2-U8IGXAU8UG-axLb35qY7Mczwq9oxM9Z0_IcC8R8TJJQFQXzazo9YZmqts6qQ4pRlsfKpy9IzyLzyR9KZyKLZalBytwkr2lW7QU3tC-xPrf43jQFVKr07f9dA
+
 ```
 
-(Note: to inspect this example JWT, you can visit https://jwt.io, choose RS384,
-paste in the provided RSA keys, and then paste the JWT value into the "encoded"
+
+(Note: to inspect this example JWT, you can visit https://jwt.io, and select RS384,
+which will display public and private keys.  Paste the signed JWT value above into 
+the "Encoded"  field, and the plaintext JWT will be displayed in the "Decoded:Payload" 
 field.)
 
 ##### 3. Obtain an access token
@@ -328,6 +335,9 @@ grant_type=client_credentials&scope=system%2F*.read%20system%2FCommunicationRequ
 
 
 **Response**
+
+The response is a bearer token that will enable the client to retrieve FHIR 
+resources from, and communicate with, the EHR for a five-minute time period.
 
 ```
 {
