@@ -227,28 +227,29 @@ The access token response is a JSON object, with the following properties:
   </tbody>
 </table>
 
-## Server Obligations for Signature Verification
+## Authorization Server Obligations 
 
-Servers SHALL follow all requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
+### Signature Verification
+
+The EHR's authorization server SHALL validate the JWT according to the 
+processing requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
 
 In addition, we require that servers SHALL:
 * validate the signature on the JWT
-* check that the JWT `exp` claim is valid
-* check that the JWT `aud` claim matches the server's OAuth token URL (the URL to which the token was `POST`ed)
-* check that this is not a `jti` value previously encountered for the given `iss` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
+* check that the `jti` value has not been previously encountered for the given `iss` within the maximum allowed authentication JWT lifetime (e.g., 5 minutes). This check prevents replay attacks.
 * ensure that the `client_id` provided is known and matches the JWT's `iss` claim
 
-To resolve a key to verify signatures, a server follows this algorithm:
+To resolve a key to verify signatures, a server SHALL implement this algorithm:
 
 <ol>
   <li>If the <code>jku</code> header is present, verify that the <code>jku</code> is whitelisted (i.e., that it 
-matches the value supplied at registration time for the specified `client_id`).
+    matches the value supplied at registration time for the specified <code>client_id</code>).
     <ol type="a">
       <li>If the <code>jku</code> header is not whitelisted, the signature verification fails.</li>
       <li>If the <code>jku</code> header is whitelisted, create a set of potential keys by dereferencing the <code>jku</code> URL. Proceed to step 3.</li>
     </ol>
   </li>
-  <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI (if any) + any keys supplied in the registration-time JWKS (if any). Proceed to step 3.</li>
+  <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWK Set URL (if any) + any keys supplied in the registration-time JWK Set (if any). Proceed to step 3.</li>
   <li> Filter the potential keys to retain only those where the <code>kid</code> matches the value supplied in the client's JWK header, and the <code>kty</code> is consistent with the signature algorithm used for the JWT (e.g., <code>RSA</code> for a JWT using an RSA-based signature, or <code>EC</code> for a JWT using an EC-based signature).</li>
   <li> Attempt to verify the JWK using each key in the potential keys list.
     <ol type="a">
@@ -259,7 +260,54 @@ matches the value supplied at registration time for the specified `client_id`).
 </ol>
  
 
-If an error is encountered during the authorization process, servers SHALL respond with errors as defined by the [OAuth 2 specification](https://tools.ietf.org/html/rfc6749#section-5.2). Servers SHOULD also include an error_uri and error_description as defined by OAuth 2.
+If an error is encountered during the authentication process, the server SHALL 
+respond with an `invalid_client` error as defined by 
+the [OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749#section-5.2). 
+
+### Issuing Access Tokens
+
+Once the backend service has been authenticated, the authorization server SHALL
+mediate the request to assure that the scope requested is within the scope pre-authorized
+to the backend service.
+
+If the access token request is valid and authorized, the authorization server
+SHALL issue an access token in response.  The access token SHALL be a JSON object with 
+the following properties: 
+
+<table class="table">
+  <thead>
+    <th colspan="3">Access token response: property names</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>access_token</code></td>
+      <td><span class="label label-success">required</span></td>
+      <td>The access token issued by the authorization server.</td>
+    </tr>
+    <tr>
+      <td><code>token_type</code></td>
+      <td><span class="label label-success">required</span></td>
+      <td>Fixed value: <code>bearer</code>.</td>
+    </tr>
+    <tr>
+      <td><code>expires_in</code></td>
+      <td><span class="label label-success">required</span></td>
+      <td>The lifetime in seconds of the access token. The recommended value is <code>300</code>, for a five-minute token lifetime.</td>
+    </tr>
+    <tr>
+      <td><code>scope</code></td>
+      <td><span class="label label-success">required</span></td>
+      <td>Scope of access authorized. Note that this can be different from the scopes requested by the app.</td>
+    </tr>
+  </tbody>
+</table>
+
+Access tokens issued under this profile SHALL be short-lived; the `expires_in` 
+value SHOULD NOT exceed `300`, which represents an expiration-time of five minutes.  
+
+If an error is encountered during the authorization process, the server SHALL
+respond with the appropriate error message defined in [Section 5.2 of the OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749#page-45).  The server SHOULD include an 
+`error_uri` and `error_description` as defined in OAuth 2.0.  
 
 ## Scopes
 
