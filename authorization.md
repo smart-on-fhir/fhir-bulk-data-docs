@@ -6,7 +6,7 @@
 This profile is intended to be used by developers of back-end services that
 autonomously (or semi-autonomously) need to access FHIR resources from an EHR 
 that has pre-authorized a defined scope of access.  Specifically, this profile 
-describes the registration process by which a backend service is pre-authorized, 
+describes the registration-time metadata required for a backend service to be pre-authorized,
 and the runtime process by which the service acquires an 
 access token that can be used to retrieve FHIR resources.  This 
 specification is not restricted to use for retrieving bulk data; it may be used 
