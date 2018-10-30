@@ -303,7 +303,9 @@ the following properties:
 </table>
 
 Access tokens issued under this profile SHALL be short-lived; the `expires_in` 
-value SHOULD NOT exceed `300`, which represents an expiration-time of five minutes.  
+value SHOULD NOT exceed `300`, which represents an expiration-time of five minutes. 
+
+The authorization server’s response MUST include the HTTP “Cache-Control” response header field with a value of “no-store,” as well as the “Pragma” response header field with a value of “no-cache.”    
 
 If an error is encountered during the authorization process, the server SHALL
 respond with the appropriate error message defined in [Section 5.2 of the OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749#page-45).  The server SHOULD include an 
