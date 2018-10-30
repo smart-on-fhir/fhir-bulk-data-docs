@@ -339,6 +339,11 @@ The response is a bearer token that will enable the client to retrieve FHIR
 resources from, and communicate with, the EHR for a five-minute time period.
 
 ```
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Cache-Control: no-store
+Pragma: no-cache
+
 {
   "access_token": "m7rt6i7s9nuxkjvi8vsx",
   "token_type": "bearer",
