@@ -31,6 +31,19 @@ registered patients and synchronizes these with an external database
 * A utilization tracking system that queries an EHR every minute for
 bed and room usage and displays statistics on a wall monitor.
 
+## Underlying Standards
+
+* [HL7 FHIR RESTful API](http://www.hl7.org/fhir/http.html)
+* [RFC5246, The Transport Layer Security Protocol, V1.2](https://tools.ietf.org/html/rfc5246)
+* [RFC6749, The OAuth 2.0 Authorization Framework](https://tools.ietf.org/html/rfc6749)
+* [RFC7515, JSON Web Signature](https://tools.ietf.org/html/rfc7515)
+* [RFC7517, JSON Web Key](https://www.rfc-editor.org/rfc/rfc7517.txt)
+* [RFC7519, JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)
+* [RFC7521, Assertion Framework for OAuth 2.0 Client Authentication and Authorization Grants](https://tools.ietf.org/html/rfc7521)
+* [RFC7518, JSON Web Algorithms](https://tools.ietf.org/html/rfc7518)
+* [RFC7523, JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants](https://tools.ietf.org/html/rfc7523)
+* [RFC7591, OAuth 2.0 Dynamic Client Registration Protocol](https://tools.ietf.org/html/rfc7591)
+
 ## Conformance Language
 This specification uses the conformance verbs SHALL, SHOULD, and MAY as defined 
 in [RFC2119](https://www.ietf.org/rfc/rfc2119.txt). Unlike RFC 2119, however, 
@@ -44,7 +57,6 @@ implementers within the context of their particular implementation; there may
 be valid reasons to ignore an item, but the full implications must be understood 
 and carefully weighed before choosing a different course
 4.  MAY: This is truly optional language for an implementation; can be included or omitted as the implementer decides with no implications
-
 
 ## Registering a SMART Backend Service (communicating public keys)
 
