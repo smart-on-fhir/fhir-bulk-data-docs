@@ -44,6 +44,19 @@ bed and room usage and displays statistics on a wall monitor.
 * [RFC7523, JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants](https://tools.ietf.org/html/rfc7523)
 * [RFC7591, OAuth 2.0 Dynamic Client Registration Protocol](https://tools.ietf.org/html/rfc7591)
 
+## Conformance Language
+This specification uses the conformance verbs SHALL, SHOULD, and MAY as defined 
+in [RFC2119](https://www.ietf.org/rfc/rfc2119.txt). Unlike RFC 2119, however, 
+this specification allows that different applications may not be able to 
+interoperate because of how they use optional features. In particular:
+
+1.  SHALL: an absolute requirement for all implementations
+2.  SHALL NOT: an absolute prohibition against inclusion for all implementations
+3.  SHOULD/SHOULD NOT: A best practice or recommendation to be considered by 
+implementers within the context of their particular implementation; there may 
+be valid reasons to ignore an item, but the full implications must be understood 
+and carefully weighed before choosing a different course
+4.  MAY: This is truly optional language for an implementation; can be included or omitted as the implementer decides with no implications
 
 ## Registering a SMART Backend Service (communicating public keys)
 
