@@ -19,6 +19,7 @@ The scope of this document does NOT include:
 * HL7 FHIR Release 3, https://www.hl7.org/fhir/
 * The JavaScript Object Notation (JSON) Data Interchange Format, RFC7159.  https://tools.ietf.org/html/rfc7159
 * Transport Layer Security (TLS) Protocol Version 1.2.  RFC5246).  https://tools.ietf.org/html/rfc5246 
+* The OAuth 2.0 Authorization Framework: Bearer Token Usage, RFC6750.  https://tools.ietf.org/html/rfc6750
 
 ## Terminology
 
