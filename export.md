@@ -1,4 +1,12 @@
 # FHIR Bulk Data Export API Proposal
+ 
+## Security Considerations
+
+When initiating any request with the FHIR resource server, the client first MUST use [Transport Layer Security (TLS) Protocol Version 1.2 (RFC5246)](https://tools.ietf.org/html/rfc5246) to authenticate the identity of the FHIR server and to establish an encrypted, integrity-protected link for securing all exchanges between the client and the FHIR server.  All exchanges described herein between the client and the FHIR server APIs MUST be secured using TLS V1.2.  
+
+Prior to kicking off a bulk-data request, every client MUST be authenticated and authorized by the authorization server responsible for authorizing access to the protected FHIR resources, and MUST have been granted an access token that is currently valid and that authorizes a scope that encompasses the request.  For this purpose, the OAuth 2.0 based SMART Backend Services: Authorization Guide is recommended. 
+
+Regardless of how access tokens are obtained, the requests outlined below MUST include an Authorization header containing the bearer token received from the responsible authorization server.   Upon receipt of the request, the FHIR resource server MUST inspect the token to assure its validity and that its scope encompasses the requested files.  If not, the server SHOULD return an invalid_client response.    
 
 ## Request Flow
 
