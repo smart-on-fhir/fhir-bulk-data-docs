@@ -1,4 +1,30 @@
-# FHIR Bulk Data Export API Proposal
+# DRAFT FHIR Bulk Data Export Implementation Guide
+
+## Audience and Scope
+
+This implementation guide is intended to be used by developers of backend services (clients) and FHIR Resource Servers (e.g., EHR systems, data warehouses, and other clinical and administrative systems) that aim to interoperate by sharing large FHIR datasets.  The guide defines the application programming interfaces (APIs) through which an authenticated and authorized client may request a bulk-data export from a server, receive status information regarding progress in the generation of the requested files, and receive these files.  It also includes recommendations regarding the FHIR resources that might be exposed throuh the export interface.  
+
+The scope of this document does NOT include:
+
+* A legal framework for sharing data between partners, including Business Associate Agreements, Service Level Agreements, and Data Use Agreements
+* Real-time data exchange
+* Data transformations that may be required by the client
+* Patient matching (although identifiers may be incuded in the exported FHIR resources)
+* Management of FHIR groups within the clinical system; the bulk data operation may include a valid group id, but this guide does not specify how FHIR Group resources are created and maintained within a system 
+
+## Referenced Specifications
+
+* Newline-delimited JSON.  http://ndjson.org
+* The OAuth 2.0 Authorization Framework, RFC6749, https://tools.ietf.org/html/rfc6749 
+* HL7 FHIR Release 3, https://www.hl7.org/fhir/
+* The JavaScript Object Notation (JSON) Data Interchange Format, RFC7159.  https://tools.ietf.org/html/rfc7159
+* Transport Layer Security (TLS) Protocol Version 1.2.  RFC5246).  https://tools.ietf.org/html/rfc5246 
+
+## Terminology
+
+This profile inherits terminology from the standards referenced above.
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in RFC2119.
+
 
 ## Request Flow
 
