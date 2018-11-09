@@ -124,7 +124,7 @@ After a bulk data request has been started, clients can send a delete request to
 - The body MUST be a FHIR OperationOutcome in JSON format
 
 ---
-### Bulk Data Status Request:
+### Bulk Data Status Request
 
 After a bulk data request has been started, the client MAY poll the URI provided in the ```Content-Location``` header.  The request MUST include a valid access token in the ```Authorization``` header (i.e., ```Authorization:  Bearer {{token}}```).  See the Security Considerations section above.  
 
