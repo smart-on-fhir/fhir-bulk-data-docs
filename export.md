@@ -194,9 +194,9 @@ Note: The ```Accept``` header for this request should be ```application/json```.
     ```
 
 ---
-### File Requests:
+### File Request
 
-Using the urls supplied in the completed status request body, clients can download the generated bulk data files (one or more per resource type). Note: These files may be served by a file server rather than a FHIR specific server. Also, if the ```requiresAccessToken``` field in the status body is set to ```true``` the request must include a valid access token in the ```Authorization``` header in these requests (i.e., `Authorization: Bearer {{token}}`).
+Using the URIs supplied by the FHIR server in the Complete Status response body, a client MAY download the generated bulk data files (one or more per resource type). If the ```requiresAccessToken``` field in the Complete Status body is set to ```true```, the request MUST include a valid access token in the ```Authorization``` header (i.e., `Authorization: Bearer {{token}}`).  See the Security Considerations section above.  Note: These files MAY be served by a file server other than a FHIR-specific server. 
 
 #### Endpoint 
 
@@ -206,26 +206,19 @@ Using the urls supplied in the completed status request body, clients can downlo
 
 - ```Accept``` (optional, defaults to ```application/fhir+ndjson```)
 
-Specifies the format of the file being returned. Optional, but currently only application/fhir+ndjson is supported.
+Specifies the format of the file being requested. 
 
 #### Response - Success
 
 - HTTP status of ```200 OK```
-- ```Content-Type``` header of ```application/fhir+ndjson```
-- Body of FHIR resources in newline delimited json - [ndjson](http://ndjson.org/) format
+- ```Content-Type``` header that matches the file format being delivered.  For files in ndjson format, MUST be ```application/fhir+ndjson```
+- Body of FHIR resources in newline delimited json - [ndjson](http://ndjson.org/) or other requested format
 
 #### Response - Error
 
 - HTTP Status Code of ```4XX``` or ```5XX```
 
----
-## Out of scope in v1 of this specification
 
-- Legal framework for sharing data between partners - BAAs, SLAs, DUAs should continue to be negotiated out-of-band 
-- Real-time data (although data loaded through bulk data can be supplemented at with synchronous FHIR REST API calls)
-- Data transformation and transmission - different step of the ETL process
-- Patient matching (although, it’s possible to include identifiers like subscriber number in FHIR resources)
-- Management of FHIR groups within the clinical system - the bulk data operation will require a valid group id, but does not specify how FHIR Groups resources are created and maintained within a system
 
 ---
 ## Change Log:
