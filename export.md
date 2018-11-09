@@ -126,11 +126,11 @@ After a bulk data request has been started, clients can send a delete request to
 ---
 ### Bulk Data Status Request:
 
-After a bulk data request has been started, clients can poll the url provided in the ```Content-Location``` header, using any access token valid at the initial `$export` endpoint, to obtain the status of the request. 
+After a bulk data request has been started, the client MAY poll the URI provided in the ```Content-Location``` header.  The request MUST include a valid access token in the ```Authorization``` header (i.e., ```Authorization:  Bearer {{token}}```).  See the Security Considerations section above.  
 
-Note: Clients should follow an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers may supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients should use this information to inform the timing of future polling requests. If a client is polling too frequently, the server should respond with a `429` status code in addition to a Retry-After header, and optionally an OperationOutcome with further explanation.
+Note: Clients SHOULD follow an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers SHOULD supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients SHOULD use this information to inform the timing of future polling requests. Servers SHOULD keep an accounting of status queries received from a given client, and if a client is polling too frequently, the server SHOULD respond with a `429 Too Many Requests` status code in addition to a Retry-After header, and optionally a FHIR OperationOutcome resource with further explanation.  If excessively frequent status queries persist, the server MAY return a `429 Too Many Requests` status code and terminate the session.  
 
-Note: The ```Accept``` header for this request should be ```application/json```. In the case that errors prevent the export from completing, the response will contain a JSON-encoded FHIR OperationOutcome resource. 
+Note: When requesting status, the client SHOULD use an ```Accept``` header for indicating content type  ```application/json```. In the case that errors prevent the export from completing, the server SHOULD respond with  a JSON-encoded FHIR OperationOutcome resource. 
 
 #### Endpoint 
 
@@ -138,34 +138,34 @@ Note: The ```Accept``` header for this request should be ```application/json```.
 
 #### Response - In-Progress Status
 
-- HTTP Status Code of ```202 Accepted```
-- Optionally an ```X-Progress``` header with a text description of the status of the request that's less than 100 characters. The format of this description is at the server's discretion and may be a percentage complete value or a more general status such as "in progress". Clients can try to parse this value, display it to the user, or log it.
+- HTTP Status Code of ```102 Processing```
+- Optionally, the server MAY return an ```X-Progress``` header with a text description of the status of the request that's less than 100 characters. The format of this description is at the server's discretion and may be a percentage complete value or a more general status such as "in progress". The client MAY parse the description, display it to the user, or log it.
 
 #### Response - Error Status
 
 - HTTP status code of ```5XX```
-- The body MUST be a FHIR OperationOutcome in JSON format
-- Even if some resources cannot successfully be exported, the overall export operation may still succeed. In this case, the `Response.error` array of the completion Response must be populated (see below) with one or more files in ndjson format containing `OperationOutcome` resources to indicate what went wrong.
+- The server MUST return a FHIR OperationOutcome resource in JSON format
+- Even if some of the requested resources cannot successfully be exported, the overall export operation MAY still succeed. In this case, the `Response.error` array of the completion response MUST be populated (see below) with one or more files in ndjson format containing FHIR `OperationOutcome` resources to indicate what went wrong.
 
 #### Response - Complete Status
 
 - HTTP status of ```200 OK```
 - ```Content-Type header``` of ```application/json```
--  Optionally an ```Expires``` header indicating when the files listed will no longer be available.
+-  Optionally, the server MAY return an ```Expires``` header indicating when the files listed will no longer be available.
 - A body containing a json object providing metadata and links to the generated bulk data files.
 
   Required Fields:
-  - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is run. No resources that have a modified data after this instant should be in the response.
-  - ```request``` - the full url of the original bulk data kick-off request
-  - ```requiresAccessToken``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 urls or an internal file server within an organization's firewall.
-  - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no data is returned from the kick-off request, the server should return an empty array. 
-  - ```error``` - array of error file items following the same structure as the `output` array. Note: If no errors occurred, the server should return an empty array.  Note: Only the `OperationOutcome` resource type is currently supported, so a server will generate ndjson files where each row is an `OperationOutcome` resource.
+  - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is run. The response SHOULD NOT include any resources that contain data modified after this instant.
+  - ```request``` - the full URI of the original bulk data kick-off request
+  - ```requiresAccessToken``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 URIs or an internal file server within an organization's firewall.
+  - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no resources are returned from the kick-off request, the server SHOULD return an empty array. 
+  - ```error``` - array of error file items following the same structure as the `output` array. Note: If no errors occurred, the server SHOULD return an empty array.  Note: Only the `OperationOutcome` resource type is currently supported, so a server MUST generate files in the same format as the bulk data output files that contain `OperationOutcome` resources.
   
-  Each file item should contain the following fields:
-   - ```type``` - the FHIR resource type that is contained in the file. Note: Each file may only contain resources of one type, but a server may create more than one file for each resources type returned. The number of resources contained in a file is may vary between servers. If no data is found for a resource, the server should not return an output item for it in the response.
-   - ```url``` - the path to the file. The format of the file should reflect that requested in the ```_outputFormat``` parameter of the initial kick-off request.
+  Each file item SHOULD contain the following fields:
+   - ```type``` - the FHIR resource type that is contained in the file. Note: Each file MUST contain resources of only one type, but a server MAY create more than one file for each resources type returned. The number of resources contained in a file is MAY  vary between servers. If no data are found for a resource, the server SHOULD NOT return an output item for that resource in the response.
+   - ```url``` - the path to the file. The format of the file SHOULD reflect that requested in the ```_outputFormat``` parameter of the initial kick-off request.
    
-  Each file item may optionally contain the following field:
+  Each file item MAY optionally contain the following field:
    - ```count``` - the number of resources in the file, represented as a JSON number.
     
 
