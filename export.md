@@ -27,18 +27,13 @@ This profile inherits terminology from the standards referenced above.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in RFC2119.
 
 
-## Request Flow
+## Bulk Data Export Requests
 
-### Authorization
-
-Bulk data servers should implement the OAuth based [SMART backend services](./authorization.md) authorization process. On the requests outlined below, clients should include an ```Authorization``` header containing the bearer token received from the authorization flow. If the server responds to a request with a ```401 Unauthorized``` header, the client should follow the authorization flow to obtain a new token.
-
----
 ### Bulk Data Kick-off Request
 
-This FHIR Operation initiates the asynchronous generation of data files for all patients, a group of patients, or all available data contained in a FHIR server.
+This FHIR Operation initiates the asynchronous process of a client's request for the generation of as set of data to which the client is authorized -- whether that be all patients, a subset (defined group) of patients, or all available data contained in a FHIR server.
 
-Note: Only data the client application has authorization to access and that the relevant business agreements allow should be returned.
+The client MUST present a valid access token with the request.  The FHIR server MUST limit the data returned to only those FHIR resources authorized in the scope of the access token provided by the client.
 
 #### Endpoint - All Patients
 
@@ -50,7 +45,9 @@ Note: Only data the client application has authorization to access and that the 
 
 FHIR Operation to obtain data on all patients listed in a single [FHIR Group Resource](https://www.hl7.org/fhir/group.html). 
 
-If a server supports Group-level data export, it SHOULD support reading and searching for `Group` resource. This would allow clients to discover available groups based on stable characteristics such as `Group.identifier`. Note: How these groups are defined will be implementation specific for each clinical system. For example, a payer may send a healthcare institution a roster file that can be imported into their EHR to create or update a FHIR group. Group membership could be based upon explicit attributes of the patient, such as: age, sex or a particular condition such as PTSD or Chronic Opioid use, or on more complex attributes, such as a recent inpatient discharge or membership in the population used to calculate a quality measure. Although, FHIR based group management is out of scope for the bulk data project, it would be a valuable project.
+If a FHIR server supports Group-level data export, it SHOULD support reading and searching for `Group` resource. This enables  clients to discover available groups based on stable characteristics such as `Group.identifier`. 
+
+Note: How these groups are defined is implementation specific for each FHIR system. For example, a payer may send a healthcare institution a roster file that can be imported into their EHR to create or update a FHIR group. Group membership could be based upon explicit attributes of the patient, such as: age, sex or a particular condition such as PTSD or Chronic Opioid use, or on more complex attributes, such as a recent inpatient discharge or membership in the population used to calculate a quality measure. FHIR-based group management is out of scope for the current version of this implementation guide.
 
 #### Endpoint - System Level Export
 
@@ -66,13 +63,13 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 
 - ```Prefer``` (required)
 
-  Specifies whether the response is immediate or asynchronous. Currently must be set to ```respond-async```.
+  Specifies whether the response is immediate or asynchronous. The header MUST be set to ```respond-async```.
 
 #### Query Parameters
 
 - ```_outputFormat``` (string, optional, defaults to ```application/fhir+ndjson```)
 
-  The format for the generated bulk data files. Currently, [ndjson](http://ndjson.org/) must be supported, though servers may choose to also support other output formats. Servers should support the full content type of ```application/fhir+ndjson``` as well as abbreviated representations including ```application/ndjson``` and ```ndjson```.
+  The format for the requested bulk data files to be generated. Servers MUST support [Newline Delimited JSON](http://ndjson.org), but MAY choose to support additional output formats. Servers MUST accept the full content type of ```application/fhir+ndjson``` as well as the abbreviated representations ```application/ndjson``` and ```ndjson```.
 
 - ```_since``` (FHIR instant type, optional)  
 
@@ -82,17 +79,17 @@ Export data from a FHIR server whether or not it is associated with a patient. T
 
 - ```_type``` (string of comma-delimited FHIR resource types, optional)
 
-  Only resources of the specified resource types(s) will be included in the response. If this parameter is omitted, the server should return all supported resources that the client has authorization to access and that the relevant business agreements allow. The [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) should act as a point of reference for recommended resources to be returned as well as other resources outside of the patient compartment that are helpful in interpreting the patient data such as Organization and Practitioner.
+  Only resources of the specified resource types(s) SHOULD be included in the response. If this parameter is omitted, the server SHOULD return all supported resources within the scope of the client authorization. For non-system-level requests, the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) SHOULD be used as a point of reference for recommended resources to be returned as well as other resources outside of the patient compartment that are helpful in interpreting the patient data such as Organization and Practitioner.
   
-  Resource references should be relative uris with the format `<resource type>/<id>`, or absolute uris with the same structure rooted in the base url for the server from which the export was performed. References will be resolved looking for a resource with the specified type and id within the file set.
+  Resource references MAY be relative URIs with the format `<resource type>/<id>`, or absolute URIs with the same structure rooted in the base URI for the server from which the export was performed. References will be resolved looking for a resource with the specified type and id within the file set.
 
-  Note: Some implementations may limit the resources returned to specific subsets of FHIR like those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
+  Note: Implementations MAY limit the resources returned to specific subsets of FHIR, such as those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
 
 ##### Experimental Query Parameters
 
-As a community, we've identified use cases for finer-grained, client-specified filtering. For example, some clients may want to retrieve only active prescriptions (rather than historical prescriptions), or only laboratory observations (rather than all observations). We have considered several approaches to finer-grained filtering, including FHIR's `GraphDefinition`, the Clinical Query Language, and FHIR's REST API search parameters. We expect this will be an area of active exploration, so for the time being we're defining an experimental syntax based on search parameters that works side-by-side with our coarse-grained `_type`-based filtering.
+As a community, we've identified use cases for finer-grained, client-specified filtering. For example, some clients may want to retrieve only active prescriptions (rather than historical prescriptions), or only laboratory observations (rather than all observations). We have considered several approaches to finer-grained filtering, including FHIR's `GraphDefinition`, the Clinical Query Language, and FHIR's REST API search parameters. We expect this will be an area of active exploration, so for the time being this document defines an experimental syntax based on search parameters that works side-by-side with the coarse-grained `_type`-based filtering.
 
-To request finer-grained filtering, a client can supply a `_typeFilter` parameter alongside the `_type` parameter. The value of the `_typeFilter` parameter is a comma-separated list of FHIR REST API queries that further restrict the results of the query. Understanding `_typeFilter` is optional for servers; clients should be robust to servers that ignore `_typeFilter`.
+To request finer-grained filtering, a client MAY supply a `_typeFilter` parameter alongside the `_type` parameter. The value of the `_typeFilter` parameter is a comma-separated list of FHIR REST API queries that further restrict the results of the query. Understanding `_typeFilter` is OPTIONAL for FHIR servers; clients SHOULD be robust to servers that ignore `_typeFilter`.
 
 *Note for client developers*: Because both `_typeFilter` and `_since` can restrict the results returned, the interaction of these parameters may be surprising. Think carefully through the implications when constructing a query with both of these parameters.
 
@@ -121,7 +118,7 @@ Note: the `Condition` resource is included in `_type` but omitted from `_typeFil
 #### Response - Success
 
 - HTTP Status Code of ```202 Accepted``` 
-- ```Content-Location``` header with an absolute url for subsequent status requests
+- ```Content-Location``` header with an absolute URI for subsequent status requests
 - Optionally a FHIR OperationOutcome in the body
 
 #### Response - Error (eg. unsupported search parameter)
@@ -129,7 +126,7 @@ Note: the `Condition` resource is included in `_type` but omitted from `_typeFil
 - HTTP Status Code of ```4XX``` or ```5XX```
 - The body MUST be a FHIR OperationOutcome in JSON format
 
-If a server wants to prevent a client from beginning a new export before an in-progress export is completed, it should respond with a `429` status and a Retry-After header, following the rate-limiting advice for "Bulk Data Status Request" below.
+If a server wants to prevent a client from beginning a new export before an in-progress export is completed, it SHOULD respond with a `429 Too Many Requests` status and a Retry-After header, following the rate-limiting advice for "Bulk Data Status Request" below.
 
 ---
 ### Bulk Data Delete Request:
