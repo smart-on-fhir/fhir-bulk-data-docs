@@ -12,11 +12,6 @@ Regardless of how access tokens are obtained and how many tokens are issued, the
 
 ## Request Flow
 
-### Authorization
-
-Bulk data servers should implement the OAuth based [SMART backend services](./authorization.md) authorization process. On the requests outlined below, clients should include an ```Authorization``` header containing the bearer token received from the authorization flow. If the server responds to a request with a ```401 Unauthorized``` header, the client should follow the authorization flow to obtain a new token.
-
----
 ### Bulk Data Kick-off Request
 
 This FHIR Operation initiates the asynchronous generation of data files for all patients, a group of patients, or all available data contained in a FHIR server.
