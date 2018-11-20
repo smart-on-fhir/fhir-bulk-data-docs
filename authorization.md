@@ -71,18 +71,18 @@ obtaining an access token.
 
 ## Obtaining an Access Token
 
-By the time a backend service has been registered with the EHR, the key
+By the time a client has been registered with the FHIR server, the key
 elements of organizational trust will have been established. That is, the 
-backend service will be considered "pre-authorized" to access clinical data. 
-Then, at runtime, the backend service will need to obtain an access token in 
-order to retrieve clinical data as pre-authorized. Such access tokens are 
-issued by the EHR's authorization server, in accordance with the [OAuth 2.0
+client will be considered "pre-authorized" to access FHIR resources. 
+Then, at runtime, the client will need to obtain an access token in 
+order to retrieve FHIR resources as pre-authorized. Such access tokens are 
+issued by the FHIR authorization server, in accordance with the [OAuth 2.0
 Authorization Framework, RFC6749](https://tools.ietf.org/html/rfc6749).  
 
 Because the authorization scope is limited to protected resources previously 
 arranged with the authorization server, the client credentials grant flow,
 as defined in [Section 4.4 of RFC6749](https://tools.ietf.org/html/rfc6749#page-40), 
-is used to request authorization.  Use of the client credentials grant type
+may be used to request authorization.  Use of the client credentials grant type
 requires that the client SHALL be a "confidential" client capable of 
 protecting its authentication credential.  
 
@@ -90,24 +90,24 @@ This specification describes requirements for requesting an access token
 through the use of an OAuth 2.0 client credentials flow, with a [JWT
 assertion](https://tools.ietf.org/html/rfc7523) as the 
 client's authentication mechanism. The exchange, as depicted below, allows the
-backend service to authenticate itself to the EHR and to request a short-lived
+client to authenticate itself to the FHIR server and to request a short-lived
 access token in a single exchange.
 
-To begin the exchange, the backend service SHALL use the [Transport Layer Security
+To begin the exchange, the client SHALL use the [Transport Layer Security
 (TLS) Protocol Version 1.2 (RFC5246)](https://tools.ietf.org/html/rfc5246) to 
-authenticate the identity of the EHR and to establish an encrypted, 
-integrity-protected link for securing all exchanges between the backend service 
-and the EHR's token endpoint.  All exchanges described herein between the backend
-service and the EHR SHALL be secured using TLS V1.2.
+authenticate the identity of the FHIR authorization server and to establish an encrypted, 
+integrity-protected link for securing all exchanges between the client 
+and the authorization server's token endpoint.  All exchanges described herein between the client
+and the FHIR server SHALL be secured using TLS V1.2.
 
 <img class="sequence-diagram-raw"  src="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQmFja2VuZCBTZXJ2aWNlIEF1dGhvcml6YXRpb24KCm5vdGUgb3ZlciBBcHA6ICBDcmVhdGUgYW5kIHNpZ24gYXV0aGVudGljACsFIEpXVCBcbntcbiAgImlzcyI6ICJhcHBfY2xpZW50X2lkIiwAFgVzdWIAAxhleHAiOiAxNDIyNTY4ODYwLCAASAVhdWQiOiAiaHR0cHM6Ly97dG9rZW4gdXJsfQBNBiAianRpIjogInJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJcbn0gLS0-AIE3BndpdGggYXBwJ3MgcHJpdmF0ZSBrZXkgKFJTMzg0KQCBbBBzY29wZT1zeXN0ZW0vKi5yZWFkJlxuZ3JhbnRfdHlwZT0AgV8HY3JlZGVudGlhbHMmXG4AgXQHYXNzZXJ0aW9uACUGdXJuOmlldGY6cGFyYW1zOm9hdXRoOgCCIQYtACMJLXR5cGU6and0LWJlYXJlcgA8Ez17c2lnbmVkAIJ1FGZyb20gYWJvdmV9CgpBcHAtPkVIUgCDXAUAg2kFZXI6ICBQT1NUIACCQxNcbihTYW1lIFVSTCBhcwCCegYARgYpAIQJDABAEUlzc3VlIG5ldyAAgx0FOgCECAUiYWNjZXNzXwCDMAUiOiAic2VjcmV0LQCDQAUteHl6IixcbiJleHBpcmVzX2luIjogMzAwLFxuLi4uXG59CgCBKA8tPgCFBwVbAFAGAGMGIHJlc3BvbnNlXQ&s=default"/>
 
 #### Protocol details
 
-Before a backend service can request an access token, it SHALL generate a
-one-time-use JSON Web Token (JWT) that will be used to authenticate the service to
-the EHR's authorization server. The authentication JWT SHALL include the
-following claims, and SHALL be signed with the backend service's private RS-384 
+Before a client can request an access token, it SHALL generate a
+one-time-use JSON Web Token (JWT) that will be used to authenticate the client to
+the FHIR authorization server. The authentication JWT SHALL include the
+following claims, and SHALL be signed with the client's private RS-384 
 key (which SHOULD be an RS384 or EC384 signature). For a practical reference on JWT, as well as debugging
 tools and client libraries, see https://jwt.io.
 
@@ -126,7 +126,7 @@ tools and client libraries, see https://jwt.io.
       <td><code>kid</code></td>
       <td><span class="label label-success">required</span></td>
       <td>The identifier of the key-pair used to sign this JWT. This identifier SHALL
-          be unique within the backend services's JWK Set.</td>
+          be unique within the client's JWK Set.</td>
     </tr>
     <tr>
       <td><code>typ</code></td>
@@ -137,8 +137,8 @@ tools and client libraries, see https://jwt.io.
       <td><code>jku</code></td>
       <td><span class="label label-info">optional</span></td>
       <td>The URL to the JWK Set containing the public key(s). When present,
-      this should match a value that the backend service supplied to the EHR at
-      client registration time.  (When absent, the EHR SHOULD fall back on the JWK
+      this should match a value that the client supplied to the FHIR server at
+      client registration time.  (When absent, the FHIR server SHOULD fall back on the JWK
       Set URL or the JWK Set supplied at registration time.</td>
     </tr>
   </tbody>
@@ -153,19 +153,19 @@ tools and client libraries, see https://jwt.io.
     <tr>
       <td><code>iss</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>Issuer of the JWT -- the service's <code>client_id</code>, as determined during registration with the EHR's authorization server
+      <td>Issuer of the JWT -- the client's <code>client_id</code>, as determined during registration with the FHIR  authorization server
         (note that this is the same as the value for the <code>sub<code> claim)</td>
     </tr>
     <tr>
       <td><code>sub</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server
+      <td>The service's <code>client_id</code>, as determined during registration with the FHIR authorization server
       (note that this is the same as the value for the <code>iss<code> claim)</td>
     </tr>
     <tr>
       <td><code>aud</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The EHR authorization server's "token URL" (the same URL to which this authentication JWT will be posted -- see below)</td>
+      <td>The FHIR authorization server's "token URL" (the same URL to which this authentication JWT will be posted -- see below)</td>
     </tr>
     <tr>
       <td><code>exp</code></td>
@@ -180,8 +180,8 @@ tools and client libraries, see https://jwt.io.
   </tbody>
 </table>
 
-After generating an authentication JWT, the service requests a new access token
-via HTTP `POST` to the EHR authorization server's token endpoint URL, using
+After generating an authentication JWT, the client requests a new access token
+via HTTP `POST` to the FHIR authorization server's token endpoint URL, using
 content-type `application/x-www-form-urlencoded` with the following parameters:
 
 <table class="table">
@@ -212,18 +212,18 @@ content-type `application/x-www-form-urlencoded` with the following parameters:
   </tbody>
 </table>
 
-## Server Obligations for Signature Verification
+## Authorization Server Obligations for Signature Verification
 
-Servers SHALL follow all requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
+SMART FHIR authorization servers SHALL follow all requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
 
-In addition, we require that servers SHALL:
+In addition, the authentication server SHALL:
 * validate the signature on the JWT
 * check that the JWT `exp` claim is valid
 * check that the JWT `aud` claim matches the server's OAuth token URL (the URL to which the token was `POST`ed)
 * check that this is not a `jti` value previously encountered for the given `iss` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
 * ensure that the `client_id` provided is known and matches the JWT's `iss` claim
 
-To resolve a key to verify signatures, a server follows this algorithm:
+To resolve a key to verify signatures, a server SHALL follow this algorithm:
 
 <ol>
   <li>If the <code>jku</code> header is present, verify that the <code>jku</code> is whitelisted (i.e., that it 
@@ -244,7 +244,7 @@ matches the value supplied at registration time for the specified `client_id`).
 </ol>
  
 
-If an error is encountered during the authorization process, servers SHALL respond with errors as defined by the [OAuth 2 specification](https://tools.ietf.org/html/rfc6749#section-5.2). Servers SHOULD also include an error_uri and error_description as defined by OAuth 2.
+If an error is encountered during the authorization process, the authorization server SHALL respond with the appropriate error as defined by the [OAuth 2 specification](https://tools.ietf.org/html/rfc6749#section-5.2). The authorization server SHOULD also include an error_uri and error_description as defined by OAuth 2.
 
 ## Scopes
 
