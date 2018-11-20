@@ -271,7 +271,7 @@ mediate the request to assure that the scope requested is within the scope pre-a
 to the backend service.
 
 If the access token request is valid and authorized, the authorization server
-SHALL issue an access token in response.  The access token SHALL be a JSON object with 
+SHALL issue an access token in response.  The access token response SHALL be a JSON object with 
 the following properties: 
 
 <table class="table">
