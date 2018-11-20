@@ -3,11 +3,11 @@
   
 ## Profile Audience and Scope
 
-This profile is intended to be used by developers of back-end services that
-autonomously (or semi-autonomously) need to access FHIR resources from an EHR 
-that has pre-authorized a defined scope of access.  Specifically, this profile 
-describes the registration-time metadata required for a backend service to be pre-authorized,
-and the runtime process by which the service acquires an 
+This profile is intended to be used by developers of backend services (clients) that
+autonomously (or semi-autonomously) need to access resources from FHIR servers 
+that have pre-authorized defined scopes of access.  Specifically, this profile 
+describes the registration-time metadata required for a client to be pre-authorized,
+and the runtime process by which the client acquires an 
 access token that can be used to retrieve FHIR resources.  This 
 specification is not restricted to use for retrieving bulk data; it may be used 
 to connect to any FHIR API endpoint, including both synchronous and asynchronous 
@@ -15,11 +15,11 @@ access.
 
 #### **Use this profile** when the following conditions apply:
 
-* The target EHR can register the backend service and pre-authorize access to a 
+* The target FHIR server can register the client and pre-authorize access to a 
 defined set of FHIR resources.
-* The backend service may run autonomously, or with user interaction that does not
+* The client may run autonomously, or with user interaction that does not
 include access authorization.
-* The backend service is able to protect a private key.
+* The client is able to protect a private key.
 * No compelling need exists for a user to authorize the access at runtime.
 
 ### Examples
