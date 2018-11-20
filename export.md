@@ -155,7 +155,7 @@ Note: The ```Accept``` header for this request should be ```application/json```.
 - A body containing a json object providing metadata and links to the generated bulk data files.
 
   Required Fields:
-  - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is completed. No resources that have a modified data after this instant should be in the response.
+  - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is run. The response SHOULD NOT include any resources modified after this instant, and SHALL include any matching resources modified up to (and including) this instant. Note: to properly meet these constraints, a FHIR Server might need to wait for any pending transactions to resolve in its database, before starting the export process. 
   - ```request``` - the full url of the original bulk data kick-off request
   - ```requiresAccessToken``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 urls or an internal file server within an organization's firewall.
   - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no data is returned from the kick-off request, the server should return an empty array. 
