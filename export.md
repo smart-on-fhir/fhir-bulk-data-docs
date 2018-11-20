@@ -129,9 +129,9 @@ Note: the `Condition` resource is included in `_type` but omitted from `_typeFil
 If a server wants to prevent a client from beginning a new export before an in-progress export is completed, it SHOULD respond with a `429 Too Many Requests` status and a Retry-After header, following the rate-limiting advice for "Bulk Data Status Request" below.
 
 ---
-### Bulk Data Delete Request:
+### Bulk Data Delete Request
 
-After a bulk data request has been started, clients can send a delete request to the url provided in the ```Content-Location``` header to cancel the request.
+After a bulk data request has been started, a client MAY send a delete request to the URI provided in the ```Content-Location``` header to cancel the request.
 
 #### Endpoint 
 
