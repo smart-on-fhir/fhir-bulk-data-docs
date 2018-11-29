@@ -368,8 +368,8 @@ respond with the appropriate error message defined in [Section 5.2 of the OAuth 
 
 ## Scopes
 
-As backend services authorization involves no user or launch context, 
-the existing SMART on FHIR scopes are not appropriate. Instead, applications SHALL use 
+As the client authorization addressed by this specification involves no user or launch context, 
+the existing SMART on FHIR scopes are not appropriate. Instead, clients SHALL use 
 "system" scopes that parallel SMART "user" scopes.  System scopes have the format 
 `system/(:resourceType|*).(read|write|*)`-- which conveys
 the same access scope as the matching user format `user/(:resourceType|*).(read|write|*)`.
@@ -378,19 +378,19 @@ software client rather than to a human end-user.
 
 ## Worked example
 
-Assume that a "bilirubin result monitoring" service has registered with
-the EHR's authorization server, establishing the following
+Assume that a "bilirubin result monitoring service" client has registered with
+the FHIR authorization server, establishing the following
 
  * JWT "issuer" URL: `bili_monitor`
  * OAuth2 `client_id`: `bili_monitor`
  * JWK identfier: `kid` value (see [example JWK](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/sample-jwks/RS384.public.json))
 
-The service protects its private key from unauthorized access, use, and modification.  
+The client protects its private key from unauthorized access, use, and modification.  
 
 At runtime, when the bilirubin monitoring service wants to
 start monitoring some bilirubin values, it needs to obtain an OAuth 2.0 access 
 token with the scopes `system/*.read` and `system/CommunicationRequest.write`. To accomplish
-this (see [example](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/sample-jwks/authorization-example-jwks-and-signatures.ipynb)), the service must first generate a one-time-use authentication JWT with the following claims:
+this (see [example](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/sample-jwks/authorization-example-jwks-and-signatures.ipynb)), the client must first generate a one-time-use authentication JWT with the following claims:
 
 ##### 1. Generate a JWT to use for client authentication:
 
@@ -407,7 +407,7 @@ this (see [example](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/ma
 
 ##### 2. Digitally sign the claims, as specified in RFC7515.  
 
-Using the service's RSA private key, with SHA-384 hashing (as specified for 
+Using the client's RSA private key, with SHA-384 hashing (as specified for 
 an `RS384` algorithm (`alg`) parameter value in RFC7518), the signed token 
 value is:
 
@@ -423,8 +423,8 @@ The plaintext JWT will be displayed in the "Decoded:Payload"  field, and a "Sign
 
 ##### 3. Obtain an access token
 
-The service then calls the SMART EHR's "token endpoint" using the one-time use
-authentication JWT as its client authentication mechanism:
+The client then calls the SMART authentication server's "token endpoint" using the one-time use
+authentication JWT as its authentication mechanism:
 
 
 **Request**
@@ -440,8 +440,8 @@ grant_type=client_credentials&scope=system%2F*.read%20system%2FCommunicationRequ
 
 **Response**
 
-The response is a bearer token that will enable the client to retrieve FHIR 
-resources from, and communicate with, the EHR for a five-minute time period.
+The response is a bearer token that will enable the client to retrieve  
+resources from, and communicate with, the FHIR resource server for a five-minute time period.
 
 ```
 HTTP/1.1 200 OK
