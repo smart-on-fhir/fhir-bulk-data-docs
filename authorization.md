@@ -205,7 +205,7 @@ tools and client libraries, see https://jwt.io.
     <tr>
       <td><code>aud</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The EHR authorization server's "token URL" (the same URL to which this authentication JWT will be posted -- see below)</td>
+      <td>The FHIR authorization server's "authorization URL" (the same URL to which this authentication JWT will be posted -- see below)</td>
     </tr>
     <tr>
       <td><code>exp</code></td>
