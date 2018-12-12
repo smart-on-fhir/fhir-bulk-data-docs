@@ -321,9 +321,9 @@ the [OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749#section-5.2).
 
 ### Issuing Access Tokens
 
-Once the backend service has been authenticated, the authorization server SHALL
+Once the client has been authenticated, the authorization server SHALL
 mediate the request to assure that the scope requested is within the scope pre-authorized
-to the backend service.
+to the client.
 
 If the access token request is valid and authorized, the authorization server
 SHALL issue an access token in response.  The access token response SHALL be a JSON object with 
@@ -357,7 +357,7 @@ the following properties:
   </tbody>
 </table>
 
-Access tokens issued under this profile SHALL be short-lived; the `expires_in` 
+To minimize risks associated with token redirection, the scope of each access token SHOULD encompass, and be limited to, the resources requested. Access tokens issued under this profile SHALL be short-lived; the `expires_in` 
 value SHOULD NOT exceed `300`, which represents an expiration-time of five minutes. 
 
 The authorization server’s response MUST include the HTTP “Cache-Control” response header field with a value of “no-store,” as well as the “Pragma” response header field with a value of “no-cache.”    
@@ -365,6 +365,8 @@ The authorization server’s response MUST include the HTTP “Cache-Control” 
 If an error is encountered during the authorization process, the server SHALL
 respond with the appropriate error message defined in [Section 5.2 of the OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749#page-45).  The server SHOULD include an 
 `error_uri` or `error_description` as defined in OAuth 2.0.  
+
+Rules regarding circumstances under which a client is required to obtain and present an access token along with a request are based on risk-management decisions that each FHIR resource service needs to make, considering the workflows involved, perceived risks, and the organization’s risk-management policies.  Each token issued under this profile MUST be short-lived, with an expiration time of no more than five minutes.  Refresh tokens SHOULD NOT be issued. 
 
 ## Scopes
 
