@@ -181,7 +181,7 @@ Note: When requesting status, the client SHOULD use an ```Accept``` header for i
   Required Fields:
   - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is run. The response SHOULD NOT include any resources modified after this instant, and SHALL include any matching resources modified up to (and including) this instant. Note: to properly meet these constraints, a FHIR Server might need to wait for any pending transactions to resolve in its database, before starting the export process. 
   - ```request``` - the full URI of the original bulk data kick-off request
-  - ```requiresAccessToken``` - boolean value indicating whether downloading the generated files will require an authentication token. Note: This may be false in the case of signed S3 URIs or an internal file server within an organization's firewall.
+  - ```requiresAccessToken``` - boolean value indicating whether downloading the generated files will require an access token. Note: This might be false, for example, in the case of signed S3 URIs or an internal file server within an organization's firewall.
   - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no resources are returned from the kick-off request, the server SHOULD return an empty array. 
   - ```error``` - array of error file items following the same structure as the `output` array. Note: If no errors occurred, the server SHOULD return an empty array.  Note: Only the `OperationOutcome` resource type is currently supported, so a server MUST generate files in the same format as the bulk data output files that contain `OperationOutcome` resources.
   
