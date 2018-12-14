@@ -2,11 +2,9 @@
  
 ## Security Considerations
 
-When initiating any request with the FHIR resource server, the client first MUST use [Transport Layer Security (TLS) Protocol Version 1.2 (RFC5246)](https://tools.ietf.org/html/rfc5246) to authenticate the identity of the FHIR server and to establish an encrypted, integrity-protected link for securing all exchanges between the client and the server involved in the exchange.  All exchanges described herein between a client and a server MUST be secured using TLS V1.2.  Use of mutual TLS is OPTIONAL.  
+All exchanges described herein between a client and a server MUST be secured using [Transport Layer Security (TLS) Protocol Version 1.2 (RFC5246)](https://tools.ietf.org/html/rfc5246).  Use of mutual TLS is OPTIONAL.  
 
-Prior to kicking off a bulk-data request, the authorization server responsible for authorizing access to the desired FHIR resources MUST have authenticated the client and issued it one or more access tokens for use in requesting the export of FHIR resources, status information, and file downloads (which could involve multiple servers).  For this purpose, the OAuth 2.0 based SMART Backend Services: Authorization Guide is RECOMMENDED.
-
-The requests outlined below MUST include an ```Authorization``` header containing a bearer token received from the responsible authorization server.   Each access token MUST include the identity of each intended recipient (audience).  Upon receipt of a request, the server to whom the token is presented MUST confirm that the token was issued by the applicable authorization server, that the token is intended for that server’s use, that the scope includes the resources requested, and that the time of use is within the valid use period.   If not, the server SHOULD return an invalid_client response.    
+All of the requests described herein require client authorization.  Requests sent to a FHIR server (e.g., kick-off request, delete request) and other RESTful services MUST include an OAuth 2.0 access token.  Implementers are encouraged to implement OAuth 2.0 access management in accordance with the [SMART Backend Services: Authorization Guide](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/authorization.md).  Implementations MAY include non-RESTful services that use authorization schemes other than OAuth 2.0.   
 
 ## Request Flow
 
