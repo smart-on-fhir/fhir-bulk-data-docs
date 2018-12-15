@@ -162,7 +162,7 @@ and the FHIR server SHALL be secured using TLS V1.2.
 Before a client can request an access token, it SHALL generate a
 one-time-use JSON Web Token (JWT) that will be used to authenticate the client to
 the FHIR authorization server. The authentication JWT SHALL include the
-following claims, and SHALL be signed with the client's private RS-384 
+following claims, and SHALL be signed with the client's private
 key (which SHOULD be an RS384 or EC384 signature). For a practical reference on JWT, as well as debugging
 tools and client libraries, see https://jwt.io.
 
