@@ -27,9 +27,7 @@ This profile inherits terminology from the standards referenced above.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in RFC2119.
 
 
-## Bulk Data Export Requests
-
-All Bulk Data Export Requests MUST include a valid access token in the ```Authorization``` header (i.e., ```Authorization:  Bearer {{token}}```).  See the Security Considerations section above.  
+## Bulk Data Export Requests 
 
 ### Bulk Data Kick-off Request
 
@@ -222,7 +220,7 @@ Note: When requesting status, the client SHOULD use an ```Accept``` header for i
 ---
 ### File Request
 
-Using the URIs supplied by the FHIR server in the Complete Status response body, a client MAY download the generated bulk data files (one or more per resource type) within the specified ```Expires``` time period. If the ```requiresAccessToken``` field in the Complete Status body is set to ```true```, the request MUST include a valid access token in the ```Authorization``` header (i.e., `Authorization: Bearer {{token}}`).  See the Security Considerations section above.  
+Using the URIs supplied by the FHIR server in the Complete Status response body, a client MAY download the generated bulk data files (one or more per resource type) within the specified ```Expires``` time period. If the ```requiresAccessToken``` field in the Complete Status body is set to ```true```, the request MUST include a valid access token.  See the Security Considerations section above.  
 
 #### Endpoint 
 
