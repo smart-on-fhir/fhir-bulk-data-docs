@@ -455,7 +455,7 @@ Authorization: Bearer {{access_token}}
 **Example Request**
 
 ```
-GET https://system/*.read system/CommunicationRequest.write
+GET https://ehr.example.org/metadata
 Authorization: Bearer m7rt6i7s9nuxkjvi8vsx
 ```
 The server SHALL validate the access token and SHALL ensure that the token has not expired and that its scope includes the requested resource.  The method the server uses to validate the access token is beyond the scope of this specification but generally involves an interaction or coordination between the resource server and the authorization server.
