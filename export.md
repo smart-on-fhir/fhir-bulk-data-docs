@@ -4,7 +4,7 @@
 
 All exchanges described herein between a client and a server MUST be secured using [Transport Layer Security (TLS) Protocol Version 1.2 (RFC5246)](https://tools.ietf.org/html/rfc5246).  Use of mutual TLS is OPTIONAL.  
 
-With each of the requests described herein, the client MUST provide proof of authorization.  Implementers are encouraged to implement OAuth 2.0 access management in accordance with the [SMART Backend Services: Authorization Guide](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/authorization.md).  Implementations MAY include non-RESTful services that use authorization schemes other than OAuth 2.0, such as mutual-TLS and pre-signed URLs to Amazon S3 buckets.     
+With each of the requests described herein, the client MUST provide proof of authorization.  Implementers are encouraged to implement OAuth 2.0 access management in accordance with the [SMART Backend Services: Authorization Guide](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/authorization.md).  Implementations MAY include non-RESTful services that use authorization schemes other than OAuth 2.0, such as mutual-TLS or signed URLs.     
 
 ## Request Flow
 
