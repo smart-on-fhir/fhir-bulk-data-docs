@@ -33,7 +33,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 This FHIR Operation initiates the asynchronous process of a client's request for the generation of as set of data to which the client is authorized -- whether that be all patients, a subset (defined group) of patients, or all available data contained in a FHIR server.
 
-The FHIR server MUST limit the data returned to only those FHIR resources authorized in the scope of the access token provided by the client.
+The FHIR server MUST limit the data returned to only those FHIR resources for which the client is authorized.
 
 #### Endpoint - All Patients
 
@@ -131,7 +131,7 @@ If a server wants to prevent a client from beginning a new export before an in-p
 ---
 ### Bulk Data Delete Request
 
-After a bulk data request has been started, a client MAY send a delete request to the URI provided in the ```Content-Location``` header to cancel the request.  The request MUST include a valid access token in the ```Authorization``` header (i.e., ```Authorization:  Bearer {{token}}```).  See the Security Considerations section above.  
+After a bulk data request has been started, a client MAY send a delete request to the URI provided in the ```Content-Location``` header to cancel the request.    
 
 #### Endpoint 
 
@@ -150,7 +150,7 @@ After a bulk data request has been started, a client MAY send a delete request t
 ---
 ### Bulk Data Status Request
 
-After a bulk data request has been started, the client MAY poll the URI provided in the ```Content-Location``` header.  All Bulk Data Status Requests MUST include a valid access token in the ```Authorization``` header (i.e., ```Authorization:  Bearer {{token}}```).  See the Security Considerations section above.  
+After a bulk data request has been started, the client MAY poll the URI provided in the ```Content-Location``` header.  
 
 Note: Clients SHOULD follow an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers SHOULD supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients SHOULD use this information to inform the timing of future polling requests. Servers SHOULD keep an accounting of status queries received from a given client, and if a client is polling too frequently, the server SHOULD respond with a `429 Too Many Requests` status code in addition to a Retry-After header, and optionally a FHIR OperationOutcome resource with further explanation.  If excessively frequent status queries persist, the server MAY return a `429 Too Many Requests` status code and terminate the session.  
 
