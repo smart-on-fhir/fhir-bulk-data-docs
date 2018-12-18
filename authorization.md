@@ -267,7 +267,19 @@ content-type `application/x-www-form-urlencoded` with the following parameters:
   </tbody>
 </table>
 
-## Authorization Server Obligations for Signature Verification
+## Scopes
+
+As the client authorization addressed by this specification involves no user or launch context, 
+the existing SMART on FHIR scopes are not appropriate. Instead, clients SHALL use 
+"system" scopes that parallel SMART "user" scopes.  System scopes have the format 
+`system/(:resourceType|*).(read|write|*)`-- which conveys
+the same access scope as the matching user format `user/(:resourceType|*).(read|write|*)`.
+However, system scopes are associated with permissions assigned to an authorized 
+software client rather than to a human end-user.
+
+## Authorization Server Obligations 
+
+### Signature Verification
 
 The EHR's authorization server SHALL validate the JWT according to the 
 processing requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
@@ -350,16 +362,6 @@ respond with the appropriate error message defined in [Section 5.2 of the OAuth 
 
 Rules regarding circumstances under which a client is required to obtain and present an access token along with a request are based on risk-management decisions that each FHIR resource service needs to make, considering the workflows involved, perceived risks, and the organization’s risk-management policies.  Each token issued under this profile MUST be short-lived, with an expiration time of no more than five minutes.  Refresh tokens SHOULD NOT be issued. 
 
-## Scopes
-
-As the client authorization addressed by this specification involves no user or launch context, 
-the existing SMART on FHIR scopes are not appropriate. Instead, clients SHALL use 
-"system" scopes that parallel SMART "user" scopes.  System scopes have the format 
-`system/(:resourceType|*).(read|write|*)`-- which conveys
-the same access scope as the matching user format `user/(:resourceType|*).(read|write|*)`.
-However, system scopes are associated with permissions assigned to an authorized 
-software client rather than to a human end-user.
-
 ## Worked example
 
 Assume that a "bilirubin result monitoring service" client has registered with
@@ -400,7 +402,6 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCIsImtpZCI6ImVlZTlmMTdhM2I1OThmZDg2NDE3YTk4MGI1
 
 ```
 
-
 Note: to inspect this example JWT, you can visit https://jwt.io. Paste the signed
 JWT value above into the "Encoded"  field, and paste the [sample public signing key](sample-jwks/RS384.public.json) (starting with the `{"kty": "RSA"` JSON object, and excluding the `{ "keys": [` JWK Set wrapping array) into the "Public Key" box.
 The plaintext JWT will be displayed in the "Decoded:Payload"  field, and a "Signature Verified" message will appear.
@@ -440,3 +441,22 @@ Pragma: no-cache
   "scope": "system/*.read system/CommunicationRequest.write"
 }
 ```
+
+## Presenting an Access Token to FHIR API
+
+With a valid access token, a client MAY issue a FHIR API call to a FHIR resource server or other appropriate endpoint. The request MUST include an ```Authorization``` header that presents the ```access_token``` as a “Bearer” token:
+
+```
+Authorization: Bearer {{access_token}}  
+```
+
+[where {{access_token}} is replaced with the actual token value]
+
+**Example Request**
+
+```
+GET https://ehr.example.org/metadata
+Authorization: Bearer m7rt6i7s9nuxkjvi8vsx
+```
+The server SHALL validate the access token and SHALL ensure that the token has not expired and that its scope includes the requested resource.  The method the server uses to validate the access token is beyond the scope of this specification but generally involves an interaction or coordination between the resource server and the authorization server.
+
