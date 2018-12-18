@@ -27,13 +27,13 @@ This profile inherits terminology from the standards referenced above.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in RFC2119.
 
 
-## Bulk Data Export Requests
+## Bulk Data Export Requests 
 
 ### Bulk Data Kick-off Request
 
 This FHIR Operation initiates the asynchronous process of a client's request for the generation of as set of data to which the client is authorized -- whether that be all patients, a subset (defined group) of patients, or all available data contained in a FHIR server.
 
-The client MUST present a valid access token with the request.  The FHIR server MUST limit the data returned to only those FHIR resources authorized in the scope of the access token provided by the client.
+The FHIR server MUST limit the data returned to only those FHIR resources for which the client is authorized.
 
 #### Endpoint - All Patients
 
@@ -131,7 +131,7 @@ If a server wants to prevent a client from beginning a new export before an in-p
 ---
 ### Bulk Data Delete Request
 
-After a bulk data request has been started, a client MAY send a delete request to the URI provided in the ```Content-Location``` header to cancel the request.
+After a bulk data request has been started, a client MAY send a delete request to the URI provided in the ```Content-Location``` header to cancel the request.    
 
 #### Endpoint 
 
@@ -150,7 +150,7 @@ After a bulk data request has been started, a client MAY send a delete request t
 ---
 ### Bulk Data Status Request
 
-After a bulk data request has been started, the client MAY poll the URI provided in the ```Content-Location``` header.  The request MUST include a valid access token in the ```Authorization``` header (i.e., ```Authorization:  Bearer {{token}}```).  See the Security Considerations section above.  
+After a bulk data request has been started, the client MAY poll the URI provided in the ```Content-Location``` header.  
 
 Note: Clients SHOULD follow an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) approach when polling for status. Servers SHOULD supply a [Retry-After header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After) with a http date or a delay time in seconds. When provided, clients SHOULD use this information to inform the timing of future polling requests. Servers SHOULD keep an accounting of status queries received from a given client, and if a client is polling too frequently, the server SHOULD respond with a `429 Too Many Requests` status code in addition to a Retry-After header, and optionally a FHIR OperationOutcome resource with further explanation.  If excessively frequent status queries persist, the server MAY return a `429 Too Many Requests` status code and terminate the session.  
 
@@ -175,13 +175,13 @@ Note: When requesting status, the client SHOULD use an ```Accept``` header for i
 
 - HTTP status of ```200 OK```
 - ```Content-Type header``` of ```application/json```
--  Optionally, the server MAY return an ```Expires``` header indicating when the files listed will no longer be available.
-- A body containing a json object providing metadata and links to the generated bulk data files.
+- The server MAY return an ```Expires``` header indicating when the files listed will no longer be available.
+- A body containing a json object providing metadata and links to the generated bulk data files.  Note that the files-for-download MAY be served by a file server other than a FHIR-specific server.
 
   Required Fields:
   - ```transactionTime``` - a FHIR instant type that indicates the server's time when the query is run. The response SHOULD NOT include any resources modified after this instant, and SHALL include any matching resources modified up to (and including) this instant. Note: to properly meet these constraints, a FHIR Server might need to wait for any pending transactions to resolve in its database, before starting the export process. 
   - ```request``` - the full URI of the original bulk data kick-off request
-  - ```requiresAccessToken``` - boolean value indicating whether downloading the generated files will require an access token. Note: This might be false, for example, in the case of signed S3 URIs or an internal file server within an organization's firewall.
+  - ```requiresAccessToken``` - boolean value of ```true``` or ```false``` indicating whether downloading the generated files requires an access token. Value MUST be ```true``` for all RESTful downloads (e.g., SMART).   Value MAY be ```false``` for non-RESTful downloads, such as downloads from Amazon S3 bucket URIs or verifiable file servers within an organization's firewall.
   - ```output``` - array of bulk data file items with one entry for each generated file. Note: If no resources are returned from the kick-off request, the server SHOULD return an empty array. 
   - ```error``` - array of error file items following the same structure as the `output` array. Note: If no errors occurred, the server SHOULD return an empty array.  Note: Only the `OperationOutcome` resource type is currently supported, so a server MUST generate files in the same format as the bulk data output files that contain `OperationOutcome` resources.
   
@@ -220,7 +220,7 @@ Note: When requesting status, the client SHOULD use an ```Accept``` header for i
 ---
 ### File Request
 
-Using the URIs supplied by the FHIR server in the Complete Status response body, a client MAY download the generated bulk data files (one or more per resource type). If the ```requiresAccessToken``` field in the Complete Status body is set to ```true```, the request MUST include a valid access token in the ```Authorization``` header (i.e., `Authorization: Bearer {{token}}`).  See the Security Considerations section above.  Note: These files MAY be served by a file server other than a FHIR-specific server. 
+Using the URIs supplied by the FHIR server in the Complete Status response body, a client MAY download the generated bulk data files (one or more per resource type) within the specified ```Expires``` time period. If the ```requiresAccessToken``` field in the Complete Status body is set to ```true```, the request MUST include a valid access token.  See the Security Considerations section above.  
 
 #### Endpoint 
 
