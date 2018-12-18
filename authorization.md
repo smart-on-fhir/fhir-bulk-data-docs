@@ -1,29 +1,37 @@
 # SMART Backend Services: Authorization Guide
 
   
-## Profile audience and scope
+## Profile Audience and Scope
 
-This profile is intended to be used by developers of back-end services that
-need to access FHIR resources by requesting access tokens from OAuth 2.0
-compliant authorization servers. This profile assumes that a backend service
-has been authorized up-front, at registration time, and describes the runtime
-process by which the service acquires an access token that can be used to
-communicate with a FHIR Resoure Server.
+This profile is intended to be used by developers of backend services (clients) that
+autonomously (or semi-autonomously) need to access resources from FHIR servers 
+that have pre-authorized defined scopes of access.  Specifically, this profile 
+describes the registration-time metadata required for a client to be pre-authorized,
+and the runtime process by which the client acquires an 
+access token that can be used to retrieve FHIR resources.  This 
+specification is not restricted to use for retrieving bulk data; it may be used 
+to connect to any FHIR API endpoint, including both synchronous and asynchronous 
+access.
 
 #### **Use this profile** when the following conditions apply:
 
-* The service runs automatically, without user interaction
-* The service is able to protect a private key
+* The target FHIR server can register the client and pre-authorize access to a 
+defined set of FHIR resources.
+* The client may run autonomously, or with user interaction that does not
+include access authorization.
+* The client is able to protect a private key.
+* No compelling need exists for a user to authorize the access at runtime.
 
 ### Examples
 
 * An analytics platform or data warehouse that periodically performs a bulk data
-export from an electronic health record system to provide insights into
+import from an electronic health record system for analysis of
 a population of patients.
 
 * A lab monitoring service that determines which patients are currently
 admitted to the hospital, reviews incoming laboratory results, and generates
-clinical alerts when specific trigger conditions are met.
+clinical alerts when specific trigger conditions are met.  Note that in this 
+example, the monitoring service may be a backend client to multiple servers.
 
 * A data integration service that periodically queries the EHR for newly
 registered patients and synchronizes these with an external database
@@ -60,68 +68,102 @@ and carefully weighed before choosing a different course
 
 ## Registering a SMART Backend Service (communicating public keys)
 
-Before a SMART backend service can run against an EHR, the service must be
-registered with that EHR's authorization service.  SMART does not specify a
-standards-based registration process, but we encourage EHR implementers to
-consider the [OAuth 2.0 Dynamic Client Registration
-Protocol](https://tools.ietf.org/html/draft-ietf-oauth-dyn-reg) for an
-out-of-the-box solution.
+Before a SMART client can run against a FHIR server, the client SHALL
+obtain a client-to-client digital certificate and SHALL
+register with that FHIR server's authorization service.  SMART does not specify a
+standards-based registration process, but we encourage FHIR service implementers to
+consider using the [OAuth 2.0 Dynamic Client Registration
+Protocol](https://tools.ietf.org/html/draft-ietf-oauth-dyn-reg).
 
-No matter how a backend service registers with an EHR's authorization service, a 
-backend service should communicate its **public key** to the SMART EHR using a
-[JSON Web Key Set (JWKS)](https://tools.ietf.org/html/rfc7517) by one of the
-following techniques:
+No matter how a client registers with a FHIR authorization service, the 
+client SHALL register its **client_id** and the **public key** the
+client will use to authenticate itself to the SMART FHIR authorization server.  The public key SHALL
+be conveyed to the FHIR authorization server in a JSON Web Key (JWK) structure presented within
+a JWK Set, as defined in 
+[JSON Web Key Set (JWKS)](https://tools.ietf.org/html/rfc7517).  The client SHALL 
+protect the associated private key from unauthorized disclosure
+and corruption. 
 
-  1. JWKS URL (preferred). This URL communicates the TLS-protected endpoint where the service's
-  public JSON Web Keys can be found. When provided, this URL will match the `jku` header
-  parameter in the service's Authorization JWTs. An advantage of this approach is that
-  it allows a client to rotate its own keys by updating the hosted content at the JWKS URL.
-  2. JWKS directly (allowed, not preferred). If a backend service cannot host a JWKS at a
-  TLS-protected URL, it may supply a JWKS directly to the EHR at registration time. A limitation
-  of this approach is that it does not enable the client to rotate its keys in-band.
+For consistency in implementation, the client's JWK SHALL be shared with the
+FHIR server using one of the following techniques:
+
+  1. URL to JWK Set (strongly preferred). This URL communicates the TLS-protected 
+  endpoint where the client's public JWK Set can be found. When provided, this URL 
+  SHALL match the `jku` header parameter in the client's Authorization JWT. Advantages 
+  of this approach are that
+  it allows a client to rotate its own keys by updating the hosted content at the 
+  JWK Set URL, assures that the public key used by the FHIR server is current, and avoids the 
+  need for the FHIR server to maintain and protect the JWK Set.
   
-It is recommended that EHRs should be capable of validating signatures using `RS384` and `ES384`; and that
-backend services be capable of generating signatures using one of these two
-algorithms. Over time, we expect recommended algorithms to evolve, so
-while this specification recommends algorithms for interoperability, it does
-not mandate any algorithm.
+  2. JWK Set directly (strongly discouraged). If a client cannot host the JWK 
+  Set at a TLS-protected URL, it MAY supply the JWK Set directly to the FHIR server at 
+  registration time.  In this case, the FHIR server SHALL protect the JWK Set from corruption,
+  and SHOULD remind the client to send an update whenever the key set changes.  Conveying
+  the JWK Set directly carries the limitation that it does not enable the client to 
+  rotate its keys in-band.  Incuding both the current and successor keys within the JWK Set
+  helps counter this limitation.  However, this approach places increased responsibility 
+  on the FHIR server for protecting the integrity of the key(s) over time, and denies the FHIR server the 
+  opportunity to validate the currency and integrity of the key at the time it is used.  
+  
+The client SHALL be capable of generating a JSON Web Signature in accordance
+with [RFC7515](https://tools.ietf.org/html/rfc7515), using JSON Web Algorithm (JWA) 
+header parameter values `RS384` and `ES384` as defined in [RFC7518](https://tools.ietf.org/html/rfc7518).  
+The FHIR authorization server SHALL be capable of validating such signatures. Over time, 
+we expect recommended algorithms to evolve, so while this specification recommends algorithms 
+for interoperability, it does not mandate the use of any specific algorithm.
 
-No matter how a JWKS is communicated to the EHR, each key in the JWKS *must be* an asymmetric
-key that includes `kty` and `kid` properties, and whose content is conveyed using "bare key" properties (i.e., direct base64 encoding of 
-key material as integer values). This means that:
+No matter how a JWK Set is communicated to the FHIR server, each JWK SHALL represent an 
+asymmetric key by including `kty` and `kid` properties, with content conveyed using 
+"bare key" properties (i.e., direct base64 encoding of key material as integer values). 
+This means that:
 
-* For RSA public keys, each MUST include `n` and `e` values (modulus and exponent) 
-* For ECDSA public keys, each MUST include `crv`, `x`, and `y` values (curve, x-coordinate, and y-coordinate, for EC keys) 
+* For RSA public keys, each JWK SHALL include `n` and `e` values (modulus and exponent) 
+* For ECDSA public keys, each JWK SHALL include `crv`, `x`, and `y` values (curve, 
+x-coordinate, and y-coordinate, for EC keys) 
 
-Upon registration, the server assigns a `client_id`, which  the client uses when
-obtaining an access token.
+Upon registration, the client SHALL be assigned a `client_id`, which  the client SHALL use when
+requesting an access token.
 
-## Obtaining an access token
+## Obtaining an Access Token
 
-By the time a backend service has been registered with the EHR, the key
-elements of organizational trust are already established. That is, the app is
-considered "pre-authorized" to access clinical data. Then, at runtime, the
-backend service must obtain an access token in order to work with clinical
-data. Such access tokens can be issued automatically, without need for human
-intervention, and they are short-lived, with a *recommended expiration time of
-five minutes*.
+By the time a client has been registered with the FHIR server, the key
+elements of organizational trust will have been established. That is, the 
+client will be considered "pre-authorized" to access FHIR resources. 
+Then, at runtime, the client will need to obtain an access token in 
+order to retrieve FHIR resources as pre-authorized. Such access tokens are 
+issued by the FHIR authorization server, in accordance with the [OAuth 2.0
+Authorization Framework, RFC6749](https://tools.ietf.org/html/rfc6749).  
 
-To obtain an access token, the service uses an OAuth 2.0 client credentials
-flow, with a [JWT
-assertion](https://tools.ietf.org/html/rfc7523) as its
-client authentication mechanism. The exchange, depicted below, allows the
-backend service to authenticate to the EHR and request a short-lived
-access token:
+Because the authorization scope is limited to protected resources previously 
+arranged with the authorization server, the client credentials grant flow,
+as defined in [Section 4.4 of RFC6749](https://tools.ietf.org/html/rfc6749#page-40), 
+may be used to request authorization.  Use of the client credentials grant type
+requires that the client SHALL be a "confidential" client capable of 
+protecting its authentication credential.  
 
-<img class="sequence-diagram-raw"  src="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQmFja2VuZCBTZXJ2aWNlIEF1dGhvcml6YXRpb24KCm5vdGUgb3ZlciBBcHA6ICBDcmVhdGUgYW5kIHNpZ24gYXV0aGVudGljACsFIEpXVCBcbntcbiAgImlzcyI6ICJhcHBfY2xpZW50X2lkIiwAFgVzdWIAAxhleHAiOiAxNDIyNTY4ODYwLCAASAVhdWQiOiAiaHR0cHM6Ly97dG9rZW4gdXJsfQBNBiAianRpIjogInJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJcbn0gLS0-AIE3BndpdGggYXBwJ3MgcHJpdmF0ZSBrZXkgKFJTMzg0KQCBbBBzY29wZT1zeXN0ZW0vKi5yZWFkJlxuZ3JhbnRfdHlwZT0AgV8HY3JlZGVudGlhbHMmXG4AgXQHYXNzZXJ0aW9uACUGdXJuOmlldGY6cGFyYW1zOm9hdXRoOgCCIQYtACMJLXR5cGU6and0LWJlYXJlcgA8Ez17c2lnbmVkAIJ1FGZyb20gYWJvdmV9CgpBcHAtPkVIUgCDXAUAg2kFZXI6ICBQT1NUIACCQxNcbihTYW1lIFVSTCBhcwCCegYARgYpAIQJDABAEUlzc3VlIG5ldyAAgx0FOgCECAUiYWNjZXNzXwCDMAUiOiAic2VjcmV0LQCDQAUteHl6IixcbiJleHBpcmVzX2luIjogOTAwLFxuLi4uXG59CgCBKA8tPgCFBwVbAFAGAGMGIHJlc3BvbnNlXQ&s=default"/>
+This specification describes requirements for requesting an access token
+through the use of an OAuth 2.0 client credentials flow, with a [JWT
+assertion](https://tools.ietf.org/html/rfc7523) as the 
+client's authentication mechanism. The exchange, as depicted below, allows the
+client to authenticate itself to the FHIR server and to request a short-lived
+access token in a single exchange.
+
+To begin the exchange, the client SHALL use the [Transport Layer Security
+(TLS) Protocol Version 1.2 (RFC5246)](https://tools.ietf.org/html/rfc5246) to 
+authenticate the identity of the FHIR authorization server and to establish an encrypted, 
+integrity-protected link for securing all exchanges between the client 
+and the authorization server's token endpoint.  All exchanges described herein between the client
+and the FHIR server SHALL be secured using TLS V1.2.
+
+<img class="sequence-diagram-raw"  src="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQmFja2VuZCBTZXJ2aWNlIEF1dGhvcml6YXRpb24KCm5vdGUgb3ZlciBBcHA6ICBDcmVhdGUgYW5kIHNpZ24gYXV0aGVudGljACsFIEpXVCBcbntcbiAgImlzcyI6ICJhcHBfY2xpZW50X2lkIiwAFgVzdWIAAxhleHAiOiAxNDIyNTY4ODYwLCAASAVhdWQiOiAiaHR0cHM6Ly97dG9rZW4gdXJsfQBNBiAianRpIjogInJhbmRvbS1ub24tcmV1c2FibGUtand0LWlkLTEyMyJcbn0gLS0-AIE3BndpdGggYXBwJ3MgcHJpdmF0ZSBrZXkgKFJTMzg0KQCBbBBzY29wZT1zeXN0ZW0vKi5yZWFkJlxuZ3JhbnRfdHlwZT0AgV8HY3JlZGVudGlhbHMmXG4AgXQHYXNzZXJ0aW9uACUGdXJuOmlldGY6cGFyYW1zOm9hdXRoOgCCIQYtACMJLXR5cGU6and0LWJlYXJlcgA8Ez17c2lnbmVkAIJ1FGZyb20gYWJvdmV9CgpBcHAtPkVIUgCDXAUAg2kFZXI6ICBQT1NUIACCQxNcbihTYW1lIFVSTCBhcwCCegYARgYpAIQJDABAEUlzc3VlIG5ldyAAgx0FOgCECAUiYWNjZXNzXwCDMAUiOiAic2VjcmV0LQCDQAUteHl6IixcbiJleHBpcmVzX2luIjogMzAwLFxuLi4uXG59CgCBKA8tPgCFBwVbAFAGAGMGIHJlc3BvbnNlXQ&s=default"/>
 
 #### Protocol details
 
-Before a backend service can request an access token, it must generate a
-one-time-use JSON Web Token (JWT) that will be used to authenticate the service to
-the EHR's authorization server. The authentication JWT is constructed with the
-following claims, and then signed with the backend service's private RSA key
-(RSA SHA-384 signature). For a practical reference on JWT, as well as debugging
+Before a client can request an access token, it SHALL generate a
+one-time-use JSON Web Token (JWT) that will be used to authenticate the client to
+the FHIR authorization server. The authentication JWT SHALL include the
+following claims, and SHALL be signed with the client's private
+key (which SHOULD be an RS384 or EC384 signature). For a practical reference on JWT, as well as debugging
 tools and client libraries, see https://jwt.io.
 
 <table class="table">
@@ -132,14 +174,14 @@ tools and client libraries, see https://jwt.io.
     <tr>
       <td><code>alg</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The algorithm used for signing the authentication JWT (e.g., `RS384`, `EC384`).
+      <td>The JWA algorithm (e.g., `RS384`, `EC384`) used for signing the authentication JWT.
       </td>
     </tr>
     <tr>
       <td><code>kid</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The identifier of the key-pair used to sign this JWT. This identifier MUST
-          be unique within the backend services's JWK Set.</td>
+      <td>The identifier of the key-pair used to sign this JWT. This identifier SHALL
+          be unique within the client's JWK Set.</td>
     </tr>
     <tr>
       <td><code>typ</code></td>
@@ -150,8 +192,9 @@ tools and client libraries, see https://jwt.io.
       <td><code>jku</code></td>
       <td><span class="label label-info">optional</span></td>
       <td>The URL to the JWK Set containing the public key(s). When present,
-      this should match a value that the backend service supplied to the EHR at
-      client registration time.</td>
+      this should match a value that the client supplied to the FHIR server at
+      client registration time.  (When absent, the FHIR server SHOULD fall back on the JWK
+      Set URL or the JWK Set supplied at registration time.</td>
     </tr>
   </tbody>
 </table>
@@ -165,24 +208,24 @@ tools and client libraries, see https://jwt.io.
     <tr>
       <td><code>iss</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server
+      <td>Issuer of the JWT -- the client's <code>client_id</code>, as determined during registration with the FHIR  authorization server
         (note that this is the same as the value for the <code>sub<code> claim)</td>
     </tr>
     <tr>
       <td><code>sub</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The service's <code>client_id</code>, as determined during registration with the EHR's authorization server
+      <td>The service's <code>client_id</code>, as determined during registration with the FHIR authorization server
       (note that this is the same as the value for the <code>iss<code> claim)</td>
     </tr>
     <tr>
       <td><code>aud</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>The EHR authorization server's "token URL" (the same URL to which this authentication JWT will be posted -- see below)</td>
+      <td>The FHIR authorization server's "token URL" (the same URL to which this authentication JWT will be posted -- see below)</td>
     </tr>
     <tr>
       <td><code>exp</code></td>
       <td><span class="label label-success">required</span></td>
-      <td>Expiration time integer for this authentication JWT, expressed in seconds since the "Epoch" (1970-01-01T00:00:00Z UTC). This time MUST be no more than five minutes in the future.</td>
+      <td>Expiration time integer for this authentication JWT, expressed in seconds since the "Epoch" (1970-01-01T00:00:00Z UTC). This time SHALL be no more than five minutes in the future.</td>
     </tr>
     <tr>
       <td><code>jti</code></td>
@@ -192,8 +235,8 @@ tools and client libraries, see https://jwt.io.
   </tbody>
 </table>
 
-After generating an authentication JWT, the service requests a new access token
-via HTTP `POST` to the EHR authorization server's token endpoint URL, using
+After generating an authentication JWT, the client requests a new access token
+via HTTP `POST` to the FHIR authorization server's token endpoint URL, using
 content-type `application/x-www-form-urlencoded` with the following parameters:
 
 <table class="table">
@@ -224,7 +267,61 @@ content-type `application/x-www-form-urlencoded` with the following parameters:
   </tbody>
 </table>
 
-The access token response is a JSON object, with the following properties:
+## Scopes
+
+As the client authorization addressed by this specification involves no user or launch context, 
+the existing SMART on FHIR scopes are not appropriate. Instead, clients SHALL use 
+"system" scopes that parallel SMART "user" scopes.  System scopes have the format 
+`system/(:resourceType|*).(read|write|*)`-- which conveys
+the same access scope as the matching user format `user/(:resourceType|*).(read|write|*)`.
+However, system scopes are associated with permissions assigned to an authorized 
+software client rather than to a human end-user.
+
+## Authorization Server Obligations 
+
+### Signature Verification
+
+The EHR's authorization server SHALL validate the JWT according to the 
+processing requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
+
+In addition, the authentication server SHALL:
+* validate the signature on the JWT
+* check that the `jti` value has not been previously encountered for the given `iss` within the maximum allowed authentication JWT lifetime (e.g., 5 minutes). This check prevents replay attacks.
+* ensure that the `client_id` provided is known and matches the JWT's `iss` claim
+
+To resolve a key to verify signatures, a server SHALL follow this algorithm:
+
+<ol>
+  <li>If the <code>jku</code> header is present, verify that the <code>jku</code> is whitelisted (i.e., that it 
+    matches the value supplied at registration time for the specified <code>client_id</code>).
+    <ol type="a">
+      <li>If the <code>jku</code> header is not whitelisted, the signature verification fails.</li>
+      <li>If the <code>jku</code> header is whitelisted, create a set of potential keys by dereferencing the <code>jku</code> URL. Proceed to step 3.</li>
+    </ol>
+  </li>
+  <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWK Set URL (if any) + any keys supplied in the registration-time JWK Set (if any). Proceed to step 3.</li>
+  <li> Filter the potential keys to retain only those where the <code>kid</code> matches the value supplied in the client's JWK header, and the <code>kty</code> is consistent with the signature algorithm used for the JWT (e.g., <code>RSA</code> for a JWT using an RSA-based signature, or <code>EC</code> for a JWT using an EC-based signature).</li>
+  <li> Attempt to verify the JWK using each key in the potential keys list.
+    <ol type="a">
+      <li> If any attempt succeeds, the signature verification succeeds.</li>
+      <li> If all attempts fail, the signature verification fails.</li>
+    </ol>
+  </li>
+</ol>
+ 
+If an error is encountered during the authentication process, the server SHALL 
+respond with an `invalid_client` error as defined by 
+the [OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749#section-5.2). 
+
+### Issuing Access Tokens
+
+Once the client has been authenticated, the authorization server SHALL
+mediate the request to assure that the scope requested is within the scope pre-authorized
+to the client.
+
+If the access token request is valid and authorized, the authorization server
+SHALL issue an access token in response.  The access token response SHALL be a JSON object with 
+the following properties: 
 
 <table class="table">
   <thead>
@@ -254,63 +351,32 @@ The access token response is a JSON object, with the following properties:
   </tbody>
 </table>
 
-## Server Obligations for Signature Verification
+To minimize risks associated with token redirection, the scope of each access token SHOULD encompass, and be limited to, the resources requested. Access tokens issued under this profile SHALL be short-lived; the `expires_in` 
+value SHOULD NOT exceed `300`, which represents an expiration-time of five minutes. 
 
-Servers SHALL follow all requirements defined in [Section 3 of RFC7523](https://tools.ietf.org/html/rfc7523#section-3).
+The authorization server’s response MUST include the HTTP “Cache-Control” response header field with a value of “no-store,” as well as the “Pragma” response header field with a value of “no-cache.”    
 
-In addition, we require that servers SHALL:
-* validate the signature on the JWT
-* check that the JWT `exp` claim is valid
-* check that the JWT `aud` claim matches the server's OAuth token URL (the URL to which the token was `POST`ed)
-* check that this is not a `jti` value previously encountered for the given `iss` within the maximum allowed authentication JWT lifetime (5 minutes). This check prevents replay attacks.
-* ensure that the `client_id` provided is known and matches the JWT's `iss` claim
+If an error is encountered during the authorization process, the server SHALL
+respond with the appropriate error message defined in [Section 5.2 of the OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749#page-45).  The server SHOULD include an 
+`error_uri` or `error_description` as defined in OAuth 2.0.  
 
-To resolve a key to verify signatures, a server follows this algorithm:
-
-<ol>
-  <li>If the <code>jku</code> header is present, verify that the <code>jku</code> is whitelisted (i.e., that it 
-matches the value supplied at registration time for the specified `client_id`).
-    <ol type="a">
-      <li>If the <code>jku</code> header is not whitelisted, the signature verification fails.</li>
-      <li>If the <code>jku</code> header is whitelisted, create a set of potential keys by dereferencing the <code>jku</code> URL. Proceed to step 3.</li>
-    </ol>
-  </li>
-  <li> If <code>jku</code> is absent, create a set of potential key sources consisting of: all keys found by dereferencing the registration-time JWKS URI (if any) + any keys supplied in the registration-time JWKS (if any). Proceed to step 3.</li>
-  <li> Filter the potential keys to retain only those where the <code>kid</code> matches the value supplied in the client's JWK header, and the <code>kty</code> is consistent with the signature algorithm used for the JWT (e.g., <code>RSA</code> for a JWT using an RSA-based signature, or <code>EC</code> for a JWT using an EC-based signature).</li>
-  <li> Attempt to verify the JWK using each key in the potential keys list.
-    <ol type="a">
-      <li> If any attempt succeeds, the signature verification succeeds.</li>
-      <li> If all attempts fail, the signature verification fails.</li>
-    </ol>
-  </li>
-</ol>
- 
-
-If an error is encountered during the authorization process, servers SHALL respond with errors as defined by the [OAuth 2 specification](https://tools.ietf.org/html/rfc6749#section-5.2). Servers SHOULD also include an error_uri and error_description as defined by OAuth 2.
-
-## Scopes
-
-As there is no user or launch context when performing backed services authorization, 
-the existing SMART on FHIR scopes are not appropriate. Instead, applications use 
-system scopes, which have the format `system/(:resourceType|*).(read|write|*)`. These have
-the same meanings as their matching `user/(:resourceType|*).(read|write|*)` scopes,
-but associated with the permissions of the authorized client instead of a human end-user.
+Rules regarding circumstances under which a client is required to obtain and present an access token along with a request are based on risk-management decisions that each FHIR resource service needs to make, considering the workflows involved, perceived risks, and the organization’s risk-management policies.  Each token issued under this profile MUST be short-lived, with an expiration time of no more than five minutes.  Refresh tokens SHOULD NOT be issued. 
 
 ## Worked example
 
-Assume that a "bilirubin result monitoring" service has registered with
-the EHR's authorization server, establishing the following
+Assume that a "bilirubin result monitoring service" client has registered with
+the FHIR authorization server, establishing the following
 
  * JWT "issuer" URL: `bili_monitor`
  * OAuth2 `client_id`: `bili_monitor`
- * RSA [public key](sample-jwks/RS384.public.json)
+ * JWK identfier: `kid` value (see [example JWK](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/sample-jwks/RS384.public.json))
 
-Separately, the service also maintains its RSA [private key](sample-jwks/authorization-example-jwks-and-signatures.ipynb).
+The client protects its private key from unauthorized access, use, and modification.  
 
-To obtain an access token at runtime, the bilirubin monitoring service wants to
-start monitoring some bilirubin values. It needs to obtain an OAuth2 token with
-the scopes `system/*.read system/CommunicationRequest.write`. To accomplish
-this, the service must first generate a one-time-use authentication JWT with the following claims:
+At runtime, when the bilirubin monitoring service wants to
+start monitoring some bilirubin values, it needs to obtain an OAuth 2.0 access 
+token with the scopes `system/*.read` and `system/CommunicationRequest.write`. To accomplish
+this (see [example](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/sample-jwks/authorization-example-jwks-and-signatures.ipynb)), the client must first generate a one-time-use authentication JWT with the following claims:
 
 ##### 1. Generate a JWT to use for client authentication:
 
@@ -325,22 +391,25 @@ this, the service must first generate a one-time-use authentication JWT with the
 ```
 
 
-##### 2. Generate an RSA SHA-384 signed JWT over these claims
+##### 2. Digitally sign the claims, as specified in RFC7515.  
 
-Using the service's RSA private key, the signed token value is:
+Using the client's RSA private key, with SHA-384 hashing (as specified for 
+an `RS384` algorithm (`alg`) parameter value in RFC7518), the signed token 
+value is:
 
 ```
 eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCIsImtpZCI6ImVlZTlmMTdhM2I1OThmZDg2NDE3YTk4MGI1OTFmYmU2In0.eyJpc3MiOiJiaWxpX21vbml0b3IiLCJzdWIiOiJiaWxpX21vbml0b3IiLCJhdWQiOiJodHRwczovL2F1dGhvcml6ZS5zbWFydGhlYWx0aGl0Lm9yZy90b2tlbiIsImV4cCI6MTQyMjU2ODg2MCwianRpIjoicmFuZG9tLW5vbi1yZXVzYWJsZS1qd3QtaWQtMTIzIn0.l2E3-ThahEzJ_gaAK8sosc9uk1uhsISmJfwQOtooEcgUiqkdMFdAUE7sr8uJN0fTmTP9TUxssFEAQnCOF8QjkMXngEruIL190YVlwukGgv1wazsi_ptI9euWAf2AjOXaPFm6t629vzdznzVu08EWglG70l41697AXnFK8GUWSBf_8WHrcmFwLD_EpO_BWMoEIGDOOLGjYzOB_eN6abpUo4GCB9gX2-U8IGXAU8UG-axLb35qY7Mczwq9oxM9Z0_IcC8R8TJJQFQXzazo9YZmqts6qQ4pRlsfKpy9IzyLzyR9KZyKLZalBytwkr2lW7QU3tC-xPrf43jQFVKr07f9dA
+
 ```
 
-(Note: to inspect this example JWT, you can visit https://jwt.io, choose RS384,
-paste in the provided RSA keys, and then paste the JWT value into the "encoded"
-field.)
+Note: to inspect this example JWT, you can visit https://jwt.io. Paste the signed
+JWT value above into the "Encoded"  field, and paste the [sample public signing key](sample-jwks/RS384.public.json) (starting with the `{"kty": "RSA"` JSON object, and excluding the `{ "keys": [` JWK Set wrapping array) into the "Public Key" box.
+The plaintext JWT will be displayed in the "Decoded:Payload"  field, and a "Signature Verified" message will appear.
 
 ##### 3. Obtain an access token
 
-The service then calls the SMART EHR's "token endpoint" using the one-time use
-authentication JWT as its client authentication mechanism:
+The client then calls the SMART authentication server's "token endpoint" using the one-time use
+authentication JWT as its authentication mechanism:
 
 
 **Request**
@@ -356,7 +425,15 @@ grant_type=client_credentials&scope=system%2F*.read%20system%2FCommunicationRequ
 
 **Response**
 
+The response is a bearer token that will enable the client to retrieve  
+resources from, and communicate with, the FHIR resource server for a five-minute time period.
+
 ```
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Cache-Control: no-store
+Pragma: no-cache
+
 {
   "access_token": "m7rt6i7s9nuxkjvi8vsx",
   "token_type": "bearer",
@@ -364,3 +441,22 @@ grant_type=client_credentials&scope=system%2F*.read%20system%2FCommunicationRequ
   "scope": "system/*.read system/CommunicationRequest.write"
 }
 ```
+
+## Presenting an Access Token to FHIR API
+
+With a valid access token, a client MAY issue a FHIR API call to a FHIR resource server or other appropriate endpoint. The request MUST include an ```Authorization``` header that presents the ```access_token``` as a “Bearer” token:
+
+```
+Authorization: Bearer {{access_token}}  
+```
+
+[where {{access_token}} is replaced with the actual token value]
+
+**Example Request**
+
+```
+GET https://ehr.example.org/metadata
+Authorization: Bearer m7rt6i7s9nuxkjvi8vsx
+```
+The server SHALL validate the access token and SHALL ensure that the token has not expired and that its scope includes the requested resource.  The method the server uses to validate the access token is beyond the scope of this specification but generally involves an interaction or coordination between the resource server and the authorization server.
+
