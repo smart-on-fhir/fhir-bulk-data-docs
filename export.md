@@ -301,6 +301,8 @@ Specifies the format of the file being requested.
 
 - Added sections: Introduction, Referenced Specifications, Terminology, and Security Considerations
 
+- Updated conformance language to match HL7 conventions
+
 - Clarified expectations for `transactionTime` property of the "Export Complete" response
 
 - Changed HTTP status code for "Export In-Progress" response (back) to 202
