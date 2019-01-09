@@ -167,7 +167,7 @@ Note: When requesting status, the client SHOULD use an ```Accept``` header for i
 
 #### Response - In-Progress Status
 
-- HTTP Status Code of ```102 Processing```
+- HTTP Status Code of ```202 Accepted```
 - Optionally, the server MAY return an ```X-Progress``` header with a text description of the status of the request that's less than 100 characters. The format of this description is at the server's discretion and may be a percentage complete value or a more general status such as "in progress". The client MAY parse the description, display it to the user, or log it.
 
 #### Response - Error Status
