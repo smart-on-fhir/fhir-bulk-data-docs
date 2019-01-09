@@ -32,6 +32,13 @@ All exchanges described herein between a client and a server MUST be secured usi
 
 With each of the requests described herein, the client MUST provide proof of authorization.  Implementers are encouraged to implement OAuth 2.0 access management in accordance with the [SMART Backend Services: Authorization Guide](https://github.com/smart-on-fhir/fhir-bulk-data-docs/blob/master/authorization.md).  Implementations MAY include non-RESTful services that use authorization schemes other than OAuth 2.0, such as mutual-TLS or signed URLs.     
 
+This specification does not address protection of the servers themselves from potential compromise.  An adversary who successfully captures administrative rights to a server will have full control over that server and can use those rights to undermine the server's security protections.
+
+In the bulk-data-export workflow, the file server will be a particularly attractive target for adversaries, as it holds the “holy grail” – files containing highly sensitive and valued PHI.  An adversary who successfully takes control of a file server may choose to continue to deliver files in response to client requests, so that neither the client nor the FHIR server is aware of the take-over. Meanwhile, the adversary is able to put the PHI to use for its own devious purposes.   
+
+Healthcare organizations are becoming increasingly aware of server vulnerabilities and the imperative to protect PHI persisted in file servers in both cloud and data-center environments. A range of existing and emerging approaches might be used to accomplish this, not all of which would be visible at the API.   Thus, this specification does not dictate an approach at this time.  Though it offers the use of an “Expires” header to limit the time period a file will be available for client download, removal of the file from the server is left up to the implementer.  Work currently underway is exploring possible approaches for protecting extracted files persisted in the file server.   
+
+
 ## Request Flow
 
 ### Bulk Data Kick-off Request
