@@ -286,23 +286,22 @@ Specifies the format of the file being requested.
 - Added `error`  and `count` properties to copmletion response
 
 #### 6/21/2018 (Draft 0.4.0)
+
 - Renamed `requiresAuthorizationToken` to `requiresAccessToken`
 
-### 9/1/2018 (Draft 0.4.1)
+#### 9/1/2018 (Draft 0.4.1)
+
 - Required OperationOutcome in error conditions
 
-### 9/29/2018 (Draft 0.4.2)
+#### 9/29/2018 (Draft 0.4.2)
+
 - Restricted Content-location to an absolute URL
 
-### 1/9/2019 (Draft 0.5.0)
+#### 1/9/2019 (Draft 0.5.0)
+
 - Clarified expected format for resource references and the process for resolving references
-
 - Recommended providing stable group characteristics such as Group.identifier for servers that support Group-based export
-
 - Added sections: Introduction, Referenced Specifications, Terminology, and Security Considerations
-
 - Updated conformance language to match HL7 conventions
-
 - Clarified expectations for `transactionTime` property of the "Export Complete" response
-
 - Changed HTTP status code for "Export In-Progress" response (back) to 202
