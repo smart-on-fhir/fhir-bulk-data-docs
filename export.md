@@ -203,11 +203,13 @@ Note: When requesting status, the client SHOULD use an ```Accept``` header for i
    
   Each file item MAY optionally contain the following field:
    - ```count``` - the number of resources in the file, represented as a JSON number.
-    
+
+  The response body and any file item MAY optionally contain the following field:
+   - ```extension``` - To support extensions, this implementation guide reserves the name extension and will never define a field with that name, allowing server implementations to use it to provide custom behavior and information. For example, a server may choose to provide a custom extension that contains a decryption key for encrypted ndjson files. The value of an extension element MUST be a pre-coordinated JSON object.
 
 	Example response body:
     
-	```json
+  ```json
     {
       "transactionTime": "[instant]",
       "request" : "[base]/Patient/$export?_type=Patient,Observation", 
@@ -227,7 +229,7 @@ Note: When requesting status, the client SHOULD use an ```Accept``` header for i
         "url" : "http://serverpath2/err_file_1.ndjson"
       }]
     }
-    ```
+  ```
 
 ---
 ### File Request
@@ -305,3 +307,7 @@ Specifies the format of the file being requested.
 - Updated conformance language to match HL7 conventions
 - Clarified expectations for `transactionTime` property of the "Export Complete" response
 - Changed HTTP status code for "Export In-Progress" response (back) to 202
+
+#### 1/13/2019 (Draft 0.5.1)
+
+- Added description of optional ```extension``` field to the complete status response 
