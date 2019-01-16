@@ -96,6 +96,17 @@ Export data from a FHIR server whether or not it is associated with a patient. T
   Resource references MAY be relative URIs with the format `<resource type>/<id>`, or absolute URIs with the same structure rooted in the base URI for the server from which the export was performed. References will be resolved looking for a resource with the specified type and id within the file set.
 
   Note: Implementations MAY limit the resources returned to specific subsets of FHIR, such as those defined in the [Argonaut Implementation Guide](http://www.fhir.org/guides/argonaut/r2/)
+  
+- ```_pageSize``` (nubmer of resources or file size expression, optional)
+  
+  The clients can instruct the server to split the export into multiple files based on file size or on the number of included resources. The value can be an integer, optionally followed by a letter `M`, `G` or `T`. Example:
+
+	- `_pageSize=10000` - Up to 10000 resources per file
+	- `_pageSize=0`     - No limit (if the server supports it)
+	- `_pageSize=100M`  - Files up to about 100 megabytes
+	- `_pageSize=5G`    - Files up to about 5 gigabytes
+	- `_pageSize=1T`    - Files up to about 1 terabyte
+
 
 ##### Experimental Query Parameters
 
