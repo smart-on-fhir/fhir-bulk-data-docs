@@ -362,6 +362,11 @@ respond with the appropriate error message defined in [Section 5.2 of the OAuth 
 
 Rules regarding circumstances under which a client is required to obtain and present an access token along with a request are based on risk-management decisions that each FHIR resource service needs to make, considering the workflows involved, perceived risks, and the organization’s risk-management policies.  Each token issued under this profile MUST be short-lived, with an expiration time of no more than five minutes.  Refresh tokens SHOULD NOT be issued. 
 
+#### Access Token Length
+The length of access tokens will change across servers, and each server may change the content and encoding of access tokens over time. Use a variable length data type without a specific maximum size to store access tokens.
+
+This specification makes no specific recommendations about the structure of access tokens, however servers may choose to use JWT as a method to declare and sign access tokens. 
+
 ## Worked example
 
 Assume that a "bilirubin result monitoring service" client has registered with
