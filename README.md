@@ -1,31 +1,12 @@
 # FHIR Bulk Data Access
 
-## Overview
+## Note
 
-Providers and organizations accountable for managing the health of populations often need to efficiently access large volumes of information on a group of individuals. For example, a health system may want to periodically retrieve updated clinical data from an EHR to a research database, a provider may want to send clinical data on a roster of patients to their ACO to calculate quality measures, or an EHR may want to access claims data to close gaps in care. In most cases, access to these bulk-data exports is pre-authorized between the data holder and the data requester.  The data exchange involves extracting a specific subset of fields from the source system, mapping the fields into a structured file format like CSV, and persisting the files in a server from which the requester can then download them into the target system. This multi-step process increases the cost of integration projects and can act as a counter-incentive to data liquidity.
+This repository is no longer being used for official development of the specification. Please see:
 
-Existing FHIR APIs work well for accessing small amounts of data, but large exports can require hundreds of thousands of requests. These draft specifications outline a standardized, FHIR based approach for exporting bulk data from a FHIR server to a pre-authorized client.
-
-## Draft Specifications
- - [SMART Backend Services: Authorization Guide](./authorization.md) - OAuth 2.0 based profile for issuing an access token to a pre-authorized client, using the Client Credentials grant flow
- - [DRAFT FHIR Bulk Data Export Implementation Guide](./export.md) - Specification of the application programming interfaces (APIs) through which an authenticated and authorized client may request a bulk-data export from a server, receive status information regarding progress in the generation of the requested files, and receive those files.
-
-## Use Cases
-These specifications are designed to support sharing any data that can be represented in FHIR. This means they should be useful for such diverse systems as:
-
-* "Native" FHIR servers that store FHIR resources directly
-* EHR systems and population health tools implementing FHIR as an interoperability layer
-* Financial systems implementing FHIR as an interoperability layer
-
-### Common Clinical Data Set
-*Applies to: EHR systems that support the Common Clinical Data Set (or, looking ahead, the US Core Data for Interoperability).*
-
-This use case exports all resources needed for the Common Clinical Data Set, as profiled by Argonaut. For a full list of these resources and profiles, see http://www.fhir.org/guides/argonaut/r2/profiles.html.
-
-### Common Financial Data Set
-*Applies to: Financial systems that support FHIR-based interoperability.*
-
-This use case exports all resources needed to convey a patient's healththcare financial history, including `Patient`,  `ExplanationOfBenefit`, `Coverage`, and `Claim`. While FHIR profiles are still being developed and standardized, see https://bluebutton.cms.gov/developers/#core-resources for a full-fledged example.
+1. https://github.com/hl7/bulk-data for the GitHub repository in active use, within the HL7 org
+2. https://build.fhir.org/ig/HL7/bulk-data for the up-to-the-minute continuous integration build of the spec
+3. https://hl7.org/fhir/bulk-data for the formal publication (anticipated by September 2019)
 
 ## Resources
  - [Overview Presentation](https://docs.google.com/presentation/d/14ZHmam9hwz6-SsCG1YqUIQnJ56bvSqEatebltgEVR6c/edit?usp=sharing)
