@@ -31,6 +31,17 @@
   
   http://52.70.192.201/secure-fhir/fhir/ (secure)
 
+- CMS BCDA
+
+https://sandbox.bcda.cms.gov/api/v1/metadata
+
+- CMS Blue Button
+
+https://sandbox.bluebutton.cms.gov/v1/fhir/metadata
+
+- CMS DPC
+https://sandbox.dpc.cms.gov/api/v1/metadata
+
 ## Client
 
 - SMART Reference Implementation - NodeJS (supports v0.2)
