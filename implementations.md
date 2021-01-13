@@ -14,14 +14,14 @@
   
 - Cerner (supports v0.2)
   
-  https://fhir-open.stagingcerner.com/beta/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$export (open)
+  https://fhir-open.stagingcerner.com/beta/ec2458f2-1e24-41c8-b71b-0e701af7583d/Patient/$export (open)
 
-  https://fhir-ehr.stagingcerner.com/beta/a758f80e-aa74-4118-80aa-98cc75846c76/token (authorization)
+  https://fhir-ehr.stagingcerner.com/beta/ec2458f2-1e24-41c8-b71b-0e701af7583d/token (authorization)
   - client ids
     - sample_jwks_es384 (if using ES384 [Sample JWKs](sample-jwks))
     - sample_jwks_rs384 (if using RS384 [Sample JWKs](sample-jwks))
 
-  https://fhir-ehr.stagingcerner.com/beta/a758f80e-aa74-4118-80aa-98cc75846c76/Patient/$export (secure)
+  https://fhir-ehr.stagingcerner.com/beta/ec2458f2-1e24-41c8-b71b-0e701af7583d/Patient/$export (secure)
   
 - ONC (supports v0.1)
   
